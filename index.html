@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paddock — 8-Week MVP Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0E1A10;--surface:#141F16;--raised:#1A2A1D;--border:#243328;--border-hi:#344D38;
+  --green:#4CAF72;--gold:#E8C97A;--blue:#6BA3D6;--coral:#E8896A;
+  --white:#F5F0E8;--mist:#8DAF94;--dim:#4A6B50;
+  --you:#4CAF72;--arch:#6BA3D6;--junior:#E8C97A;--shared:#9B8EC4;
+  --mono-bg:#0A1409;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-size:15px;line-height:1.7;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 4vw;background:rgba(14,26,16,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--white);text-decoration:none}.logo span{color:var(--green)}
+.nav-r{display:flex;align-items:center;gap:1.5rem}
+.nav-r a{color:var(--mist);text-decoration:none;font-size:.78rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;transition:color .15s}.nav-r a:hover{color:var(--green)}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green);background:rgba(76,175,114,.1);border:1px solid rgba(76,175,114,.2);padding:.25rem .7rem;border-radius:3px}
+
+/* ── HEADER ── */
+.hdr{padding:6.5rem 4vw 3.5rem;border-bottom:1px solid var(--border)}
+.hdr-inner{max-width:1100px;margin:0 auto}
+.hdr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green);letter-spacing:.14em;text-transform:uppercase;margin-bottom:1.2rem}
+.hdr-h1{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,4rem);font-weight:700;line-height:1.08;color:var(--white);margin-bottom:1.25rem}
+.hdr-h1 em{font-style:italic;color:var(--gold)}
+.hdr-sub{font-size:1rem;color:var(--mist);max-width:620px;line-height:1.85;margin-bottom:2.5rem}
+.hdr-meta{display:flex;gap:2rem;flex-wrap:wrap}
+.meta-block{padding:.9rem 1.25rem;background:var(--raised);border:1px solid var(--border);border-radius:6px}
+.meta-num{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;line-height:1}
+.meta-lbl{font-size:.72rem;color:var(--mist);margin-top:.2rem;letter-spacing:.04em}
+
+/* ── LEGEND ── */
+.legend{max-width:1100px;margin:2rem auto 0;display:flex;gap:1rem;flex-wrap:wrap;padding:0 4vw}
+.leg{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--mist)}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ── SPRINT RAIL ── */
+.rail-wrap{position:sticky;top:52px;z-index:100;background:rgba(14,26,16,.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:.85rem 4vw}
+.rail{max-width:1100px;margin:0 auto;display:flex;gap:.5rem;overflow-x:auto;padding-bottom:2px}
+.rail::-webkit-scrollbar{height:3px}.rail::-webkit-scrollbar-track{background:transparent}.rail::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px}
+.rail-btn{flex-shrink:0;padding:.4rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;color:var(--mist);background:var(--raised);border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.rail-btn:hover{color:var(--white);border-color:var(--border-hi)}
+.rail-btn.active{color:var(--bg);background:var(--green);border-color:var(--green)}
+
+/* ── MAIN LAYOUT ── */
+.main{max-width:1100px;margin:0 auto;padding:3rem 4vw 6rem;display:grid;grid-template-columns:220px 1fr;gap:3rem;align-items:start}
+.sidebar{position:sticky;top:110px}
+.sb-title{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1rem}
+.sb-links{display:flex;flex-direction:column;gap:.25rem}
+.sb-link{font-size:.82rem;color:var(--mist);text-decoration:none;padding:.3rem .75rem;border-radius:4px;border-left:2px solid transparent;transition:all .15s}
+.sb-link:hover{color:var(--white);background:var(--raised)}
+.sb-link.active{color:var(--green);border-left-color:var(--green);background:rgba(76,175,114,.06)}
+.sb-sep{height:1px;background:var(--border);margin:.5rem 0}
+
+/* ── SPRINT BLOCK ── */
+.sprint{margin-bottom:4rem;scroll-margin-top:110px}
+.sprint-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.5rem;flex-wrap:wrap}
+.sprint-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.3rem}
+.sprint-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--white);line-height:1.2}
+.sprint-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem}
+.sprint-desc{font-size:.9rem;color:var(--mist);line-height:1.8;margin-bottom:1.75rem;max-width:680px;padding-left:1rem;border-left:2px solid var(--border)}
+.sprint-chips .chip{font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:.2rem .65rem;border-radius:3px;border:1px solid}
+.chip-you{color:var(--you);border-color:rgba(76,175,114,.3);background:rgba(76,175,114,.07)}
+.chip-arch{color:var(--arch);border-color:rgba(107,163,214,.3);background:rgba(107,163,214,.07)}
+.chip-junior{color:var(--junior);border-color:rgba(232,201,122,.3);background:rgba(232,201,122,.07)}
+.chip-shared{color:var(--shared);border-color:rgba(155,142,196,.3);background:rgba(155,142,196,.07)}
+.sprint-stats{display:flex;gap:1rem;flex-wrap:wrap}
+.s-stat{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--mist);background:var(--raised);border:1px solid var(--border);padding:.3rem .75rem;border-radius:4px}
+.s-stat strong{color:var(--white)}
+
+/* ── STORY CARDS ── */
+.stories{display:flex;flex-direction:column;gap:.85rem}
+.story{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:1.25rem 1.5rem;border-left:3px solid;transition:border-color .15s,transform .15s}
+.story:hover{transform:translateX(3px)}
+.story.you{border-left-color:var(--you)}
+.story.arch{border-left-color:var(--arch)}
+.story.junior{border-left-color:var(--junior)}
+.story.shared{border-left-color:var(--shared)}
+.story-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.5rem;flex-wrap:wrap}
+.story-id{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--dim);letter-spacing:.08em}
+.story-badges{display:flex;gap:.4rem;flex-wrap:wrap}
+.sbadge{font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.15rem .5rem;border-radius:3px;border:1px solid;font-weight:500}
+.sbadge-you{color:var(--you);border-color:rgba(76,175,114,.3);background:rgba(76,175,114,.08)}
+.sbadge-arch{color:var(--arch);border-color:rgba(107,163,214,.3);background:rgba(107,163,214,.08)}
+.sbadge-junior{color:var(--junior);border-color:rgba(232,201,122,.3);background:rgba(232,201,122,.08)}
+.sbadge-shared{color:var(--shared);border-color:rgba(155,142,196,.3);background:rgba(155,142,196,.08)}
+.story-title{font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:.5rem;line-height:1.4}
+.story-body{font-size:.85rem;color:var(--mist);line-height:1.8}
+.story-body code{font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--mono-bg);color:#a8d8b8;padding:.1rem .35rem;border-radius:3px;border:1px solid var(--border)}
+.story-footer{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.story-tag{font-size:.72rem;color:var(--dim);background:var(--raised);padding:.15rem .5rem;border-radius:3px}
+
+/* ── MILESTONE BANNER ── */
+.milestone{margin:2rem 0;padding:1.25rem 1.5rem;background:rgba(76,175,114,.06);border:1px solid rgba(76,175,114,.2);border-radius:7px;display:flex;align-items:center;gap:1rem}
+.ms-icon{font-size:1.5rem;flex-shrink:0}
+.ms-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem}
+.ms-text{font-size:.88rem;color:var(--white);font-weight:500}
+
+/* ── DEFINITION SECTION ── */
+.def-sec{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:2rem;margin-bottom:3rem}
+.def-sec h3{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--white);margin-bottom:1.25rem}
+.def-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.def-item{padding:1rem 1.25rem;background:var(--raised);border:1px solid var(--border);border-radius:6px}
+.def-item h4{font-size:.85rem;font-weight:600;color:var(--white);margin-bottom:.35rem}
+.def-item p{font-size:.8rem;color:var(--mist);line-height:1.7}
+.def-item .ki{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--green);letter-spacing:.08em;display:block;margin-bottom:.3rem}
+
+/* ── REVEAL ── */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.rv.in{opacity:1;transform:none}
+
+/* ── RESPONSIVE ── */
+@media(max-width:800px){.main{grid-template-columns:1fr}.sidebar{display:none}.def-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">Paddock<span>.</span> <span style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--dim);font-weight:400;margin-left:.5rem">MVP · Sprint Plan</span></a>
+  <div class="nav-r">
+    <a href="#mvp-scope">Scope</a>
+    <a href="#team">Team</a>
+    <a href="#sprints">Sprints</a>
+    <span class="tag">v1.0 · June 2026</span>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-inner rv">
+    <p class="hdr-eyebrow">Paddock · Compliance Agent · 8-Week MVP</p>
+    <h1 class="hdr-h1">From zero to a working<br><em>N-cap tracker</em> in 8 weeks.</h1>
+    <p class="hdr-sub">This document defines the MVP scope, sprint structure, and story allocation for the Paddock Compliance Agent. It is a direction brief — sprint planning, story pointing, and Jira tickets follow. Every team member should leave knowing exactly what they are building and why.</p>
+    <div class="hdr-meta">
+      <div class="meta-block"><div class="meta-num" style="color:var(--green)">8</div><div class="meta-lbl">Weeks total</div></div>
+      <div class="meta-block"><div class="meta-num" style="color:var(--gold)">4</div><div class="meta-lbl">Sprints (2 weeks each)</div></div>
+      <div class="meta-block"><div class="meta-num" style="color:var(--blue)">28</div><div class="meta-lbl">Stories across 3 people</div></div>
+      <div class="meta-block"><div class="meta-num" style="color:var(--coral)">1</div><div class="meta-lbl">Canterbury pilot farm at end</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend rv">
+  <div class="leg"><div class="leg-dot" style="background:var(--you)"></div>You (founder, 8hr/day)</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--arch)"></div>Architect / Lead Dev (full-time)</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--junior)"></div>Junior AI Dev / Python (4hr/day, NZ)</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--shared)"></div>Shared / Pair</div>
+</div>
+
+<!-- SPRINT RAIL -->
+<div class="rail-wrap">
+  <div class="rail">
+    <button class="rail-btn active" onclick="scrollTo('scope')">MVP scope</button>
+    <button class="rail-btn" onclick="scrollTo('team')">Team</button>
+    <button class="rail-btn" onclick="scrollTo('s1')">Sprint 1 · Wks 1–2</button>
+    <button class="rail-btn" onclick="scrollTo('s2')">Sprint 2 · Wks 3–4</button>
+    <button class="rail-btn" onclick="scrollTo('s3')">Sprint 3 · Wks 5–6</button>
+    <button class="rail-btn" onclick="scrollTo('s4')">Sprint 4 · Wks 7–8</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-title">Contents</div>
+    <div class="sb-links">
+      <a href="#scope" class="sb-link active">MVP scope</a>
+      <a href="#team" class="sb-link">Team &amp; capacity</a>
+      <div class="sb-sep"></div>
+      <a href="#s1" class="sb-link">Sprint 1 — Foundation</a>
+      <a href="#s2" class="sb-link">Sprint 2 — Intelligence</a>
+      <a href="#s3" class="sb-link">Sprint 3 — Delivery</a>
+      <a href="#s4" class="sb-link">Sprint 4 — Pilot ready</a>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <div>
+
+    <!-- MVP SCOPE -->
+    <section id="scope" class="rv" style="scroll-margin-top:110px;margin-bottom:3.5rem">
+      <p style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.75rem">MVP definition</p>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--white);margin-bottom:1rem">What we are building — and what we are not.</h2>
+      <p style="font-size:.95rem;color:var(--mist);line-height:1.85;margin-bottom:2rem;max-width:680px">The MVP is a single-farm Compliance Agent covering Canterbury's N-cap requirements. It must be able to: accept nitrogen application inputs, maintain a running kg N/ha balance, flag breach risk with an 8-week forward projection, and generate a basic PDF report a farmer could show to an auditor. That is the entire scope of week 8. FarmAdvisor Agent, multi-region rule sets, and Overseer integration are explicitly post-MVP.</p>
+
+      <div class="def-sec" id="mvp-scope">
+        <h3>In scope — MVP</h3>
+        <div class="def-grid">
+          <div class="def-item"><span class="ki">// data input</span><h4>Manual N application logging</h4><p>Farmer enters date, paddock, product name, and kg applied via a simple web form or SMS command. Product-to-N conversion handled automatically using a built-in product database.</p></div>
+          <div class="def-item"><span class="ki">// rule engine</span><h4>Canterbury N-cap rule set only</h4><p>Single regional council config file. Checks running total against 190 kg N/ha limit. Season resets 1 June each year. Paddock-level and farm-level views.</p></div>
+          <div class="def-item"><span class="ki">// risk model</span><h4>Breach probability &amp; projection</h4><p>Given current rate of application, projects kg N/ha at 31 July. Calculates headroom remaining. Triggers alert SMS when projected total exceeds 160 kg/ha (8-week buffer).</p></div>
+          <div class="def-item"><span class="ki">// output</span><h4>Basic N-cap PDF report</h4><p>LLM-generated report showing season-to-date application per paddock, projected year-end total, and risk status. Formatted to match what a Canterbury FEP auditor expects to see.</p></div>
+          <div class="def-item"><span class="ki">// notification</span><h4>SMS alert on breach risk</h4><p>Single SMS sent to farmer when risk score exceeds threshold. Message written in plain English, includes specific paddock recommendations to reduce N before deadline.</p></div>
+          <div class="def-item"><span class="ki">// pilot</span><h4>One Canterbury farm, end of week 8</h4><p>Minimum viable demo: a real farmer can log an application, see their running balance, and receive an alert. This is the signal that justifies the next funding conversation.</p></div>
+        </div>
+      </div>
+
+      <div style="padding:1.25rem 1.5rem;background:var(--raised);border:1px solid var(--border);border-radius:7px;border-left:3px solid var(--coral)">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--coral);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">// explicitly out of scope — MVP</p>
+        <p style="font-size:.85rem;color:var(--mist);line-height:1.8">Overseer API integration · Ravensdown/Ballance fertiliser import · Multi-region rule sets (Waikato, Southland) · FarmAdvisor Agent · FWFP document generation · Advisor white-label portal · Mobile app · Multi-farm accounts · Fonterra supplier integration</p>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section id="team" class="rv" style="scroll-margin-top:110px;margin-bottom:3.5rem">
+      <p style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.75rem">Team &amp; capacity</p>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--white);margin-bottom:1.5rem">Three people. ~760 hours over 8 weeks.</h2>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem">
+        <div style="padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--you);border-radius:7px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--you);letter-spacing:.1em;margin-bottom:.6rem">YOU · FOUNDER</div>
+          <h4 style="font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:.5rem">Product, architecture decisions &amp; unblocking</h4>
+          <p style="font-size:.82rem;color:var(--mist);line-height:1.7;margin-bottom:.85rem">8 hours/day · 5 days/week · 320 hrs total. Owns product direction, stakeholder relationships, pilot farm recruitment, and any decision that touches scope or priorities. Reviews all PRs for product correctness (not code style). Primary writer of farmer-facing copy and SMS messages.</p>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--you)">320 hrs · 8 wks</div>
+        </div>
+        <div style="padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--arch);border-radius:7px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--arch);letter-spacing:.1em;margin-bottom:.6rem">ARCHITECT / LEAD DEV</div>
+          <h4 style="font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:.5rem">Backend, data pipeline &amp; rule engine</h4>
+          <p style="font-size:.82rem;color:var(--mist);line-height:1.7;margin-bottom:.85rem">Full-time · ~320 hrs total. Owns the core platform: data schema, API design, rule engine architecture, breach model, and PDF generation pipeline. Makes all technical infrastructure decisions. Defines the interfaces that Junior plugs into. Code reviewer and technical decision maker.</p>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--arch)">~320 hrs · 8 wks</div>
+        </div>
+        <div style="padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--junior);border-radius:7px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--junior);letter-spacing:.1em;margin-bottom:.6rem">JUNIOR AI DEV · NZ</div>
+          <h4 style="font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:.5rem">AI/LLM layer, data ingestion &amp; SMS</h4>
+          <p style="font-size:.82rem;color:var(--mist);line-height:1.7;margin-bottom:.85rem">4 hours/day · 5 days/week · 160 hrs total. Python-strong, learning AI fast. Owns the LLM integration (Anthropic API), prompt engineering, product database, SMS notification pipeline, and the farmer-facing input form. On the ground in NZ — key for pilot farm support and real-world testing.</p>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--junior)">160 hrs · 8 wks</div>
+        </div>
+      </div>
+
+      <div style="padding:1.25rem 1.5rem;background:var(--raised);border:1px solid var(--border);border-radius:7px">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--mist);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">// working rhythm</p>
+        <p style="font-size:.85rem;color:var(--mist);line-height:1.8">Daily async standup (written, Slack/Notion) — Junior posts EOD NZ time so Arch and Founder see it at start of their day. Weekly 1hr sprint check-in (video). Junior's 4hrs are deep-focus only — no meetings except the weekly check-in. Founder shields Junior from all non-build communication.</p>
+      </div>
+    </section>
+
+    <!-- SPRINT 1 -->
+    <section class="sprint rv" id="s1">
+      <div class="sprint-hdr">
+        <div>
+          <div class="sprint-label">Sprint 1 · Weeks 1–2</div>
+          <div class="sprint-title">Foundation — schema, infra &amp; data input</div>
+          <div class="sprint-chips">
+            <span class="chip chip-you">You</span>
+            <span class="chip chip-arch">Architect</span>
+            <span class="chip chip-junior">Junior</span>
+          </div>
+        </div>
+        <div class="sprint-stats">
+          <div class="s-stat"><strong>7</strong> stories</div>
+          <div class="s-stat"><strong>Goal:</strong> farmer can log an N application and see a balance</div>
+        </div>
+      </div>
+      <p class="sprint-desc">Sprint 1 is entirely about foundations. Nothing customer-facing ships this sprint — but everything that ships later depends on getting this right. The Architect owns all infrastructure and schema decisions. Junior builds the product database and input form in parallel. You recruit the pilot farm, define the Canterbury rule set in plain English, and write the farmer-facing copy. By end of week 2, a single test farm can log a nitrogen application and see a running kg N/ha balance on screen.</p>
+
+      <div class="stories">
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-001</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">Set up project infrastructure and deployment pipeline</div>
+          <div class="story-body">Provision the core infrastructure: a Python/FastAPI backend, PostgreSQL database on AWS ap-southeast-2, and a basic CI/CD pipeline via GitHub Actions. Establish environment separation (dev/staging/prod) from day one. Define branching strategy, PR process, and deployment standards the whole team will follow. This story unblocks everything else in Sprint 1 — it is the first story to start and the first to finish.</div>
+          <div class="story-footer"><span class="story-tag">infrastructure</span><span class="story-tag">devops</span><span class="story-tag">week 1</span></div>
+        </div>
+
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-002</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">Design and implement the core data schema</div>
+          <div class="story-body">Define the database schema for the core entities: <code>Farm</code>, <code>Paddock</code>, <code>NApplication</code>, <code>SeasonBalance</code>, and <code>AuditEvent</code>. Every N application logged must be immutable — updates are new entries, not edits. The <code>AuditEvent</code> table is append-only and cryptographically timestamped from day one, even in MVP. Design the schema to accommodate multi-region rules in future without breaking changes. Produce an ERD and share with the team before writing a line of code.</div>
+          <div class="story-footer"><span class="story-tag">database</span><span class="story-tag">schema</span><span class="story-tag">week 1</span></div>
+        </div>
+
+        <div class="story junior">
+          <div class="story-top"><span class="story-id">CA-003</span><div class="story-badges"><span class="sbadge sbadge-junior">Junior</span></div></div>
+          <div class="story-title">Build the nitrogen product database and N% conversion library</div>
+          <div class="story-body">Create a Python library that takes a fertiliser product name and weight applied and returns kilograms of elemental nitrogen. Seed an initial database of the 40 most common NZ dairy fertiliser products — urea (46% N), DAP (18% N), CAN (27% N), SustaiN, Flexi-N, and others sourced from Ravensdown and Ballance product sheets. Include a fuzzy-match function so farmers can type "urea" or "Urea 46" and get the right result. This library will be imported by the rule engine in Sprint 2, so the interface matters — agree it with the Architect before building.</div>
+          <div class="story-footer"><span class="story-tag">python</span><span class="story-tag">data</span><span class="story-tag">week 1</span></div>
+        </div>
+
+        <div class="story you">
+          <div class="story-top"><span class="story-id">CA-004</span><div class="story-badges"><span class="sbadge sbadge-you">You</span></div></div>
+          <div class="story-title">Define the Canterbury N-cap rule set as a structured config</div>
+          <div class="story-body">Translate Canterbury Regional Council's N-cap requirements into a structured YAML or JSON config file that the rule engine will consume. This includes: the 190 kg N/ha annual cap, the season reset date (1 June), how paddock areas are calculated, what counts as synthetic nitrogen versus organic, and any exemptions or consent pathways. This is a product and compliance task, not a coding task — you own it. Review the final config with a Canterbury rural advisor before Sprint 2 begins. The config must be human-readable; a non-developer should be able to update it when regulations change.</div>
+          <div class="story-footer"><span class="story-tag">compliance</span><span class="story-tag">config</span><span class="story-tag">week 1–2</span></div>
+        </div>
+
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-005</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">Build the N application input API endpoint</div>
+          <div class="story-body">Implement the <code>POST /farms/{id}/applications</code> API endpoint that accepts a nitrogen application event: date, paddock ID, product name, and quantity. Validate inputs, call the product conversion library (CA-003), compute the elemental N, write to the <code>NApplication</code> table, and append to the <code>AuditEvent</code> log. Return the updated <code>SeasonBalance</code> in the response so the caller always sees the new running total immediately. Include full error handling — invalid paddock, product not found, application in a closed season.</div>
+          <div class="story-footer"><span class="story-tag">api</span><span class="story-tag">backend</span><span class="story-tag">week 2</span></div>
+        </div>
+
+        <div class="story junior">
+          <div class="story-top"><span class="story-id">CA-006</span><div class="story-badges"><span class="sbadge sbadge-junior">Junior</span></div></div>
+          <div class="story-title">Build the farmer input form (web UI)</div>
+          <div class="story-body">Create a minimal, mobile-friendly web form where a farmer can log a nitrogen application: pick their farm (single farm in MVP), select or type a paddock name, type or autocomplete a product name (using the CA-003 library), enter the rate in kg/ha or total kg, and submit. On success, show the updated running N balance for that paddock and for the whole farm. The UI is functional, not polished — clean and readable on a phone in a paddock. Use plain HTML/CSS or a lightweight framework; no heavy frontend builds in Sprint 1.</div>
+          <div class="story-footer"><span class="story-tag">frontend</span><span class="story-tag">python</span><span class="story-tag">week 2</span></div>
+        </div>
+
+        <div class="story you">
+          <div class="story-top"><span class="story-id">CA-007</span><div class="story-badges"><span class="sbadge sbadge-you">You</span></div></div>
+          <div class="story-title">Recruit pilot farm and set up test data</div>
+          <div class="story-body">Identify and onboard the Canterbury pilot farm. This is a human task, not a technical one — use the cold outreach approach and rural advisor network. Gather the farm's paddock list, approximate areas, and season-to-date N applications from their existing records (even paper records are fine — enter them manually into the system at sprint end). The goal is that by end of Sprint 1 the system has one real farm with real paddocks and at least one real past application logged. This makes Sprint 2 testing against real-world numbers, not synthetic data.</div>
+          <div class="story-footer"><span class="story-tag">gtm</span><span class="story-tag">pilot</span><span class="story-tag">week 1–2</span></div>
+        </div>
+      </div>
+
+      <div class="milestone"><div class="ms-icon">🏁</div><div><div class="ms-label">Sprint 1 exit criteria</div><div class="ms-text">A real farm's paddocks are loaded. A nitrogen application can be logged via the web form. The correct kg N/ha balance is displayed. The audit trail records every event.</div></div></div>
+    </section>
+
+    <!-- SPRINT 2 -->
+    <section class="sprint rv" id="s2">
+      <div class="sprint-hdr">
+        <div>
+          <div class="sprint-label">Sprint 2 · Weeks 3–4</div>
+          <div class="sprint-title">Intelligence — rule engine &amp; breach model</div>
+          <div class="sprint-chips">
+            <span class="chip chip-arch">Architect</span>
+            <span class="chip chip-junior">Junior</span>
+            <span class="chip chip-shared">Shared</span>
+          </div>
+        </div>
+        <div class="sprint-stats">
+          <div class="s-stat"><strong>7</strong> stories</div>
+          <div class="s-stat"><strong>Goal:</strong> breach risk score and 8-week projection running live</div>
+        </div>
+      </div>
+      <p class="sprint-desc">Sprint 2 is where the product becomes intelligent. The Architect builds the rule engine that evaluates a farm's running balance against the Canterbury config and computes a risk score. Junior builds the breach probability model — the formula that projects where the farm will end up at 31 July if the current application rate continues. You test both against the pilot farm's real data, write the alert copy, and define the threshold logic. By end of week 4, the system can tell a farmer whether they are on track, at risk, or in breach — with a specific projected date if they are.</p>
+
+      <div class="stories">
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-008</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">Build the rule engine core — config-driven compliance evaluation</div>
+          <div class="story-body">Implement a rule engine that reads the Canterbury config file (CA-004) and evaluates a farm's <code>SeasonBalance</code> against it. The engine must return: current kg N/ha per paddock, current kg N/ha for the whole farm, percentage of cap used, and a simple <code>COMPLIANT / AT_RISK / BREACH</code> status. The engine must be purely config-driven — no hardcoded Canterbury-specific logic anywhere. A new regional council should be addable by dropping in a new YAML config with zero code changes. Write comprehensive unit tests against the Canterbury config, including edge cases: paddocks of different sizes, mid-season consent changes, and applications logged in a previous season.</div>
+          <div class="story-footer"><span class="story-tag">rule-engine</span><span class="story-tag">core</span><span class="story-tag">week 3</span></div>
+        </div>
+
+        <div class="story junior">
+          <div class="story-top"><span class="story-id">CA-009</span><div class="story-badges"><span class="sbadge sbadge-junior">Junior</span></div></div>
+          <div class="story-title">Implement the breach probability and projection model</div>
+          <div class="story-body">Build a Python module that takes a farm's current season balance and projects forward to 31 July. Inputs: applications to date, days elapsed in season, days remaining to 31 July, and the farm's 3-year average application rate (or regional average if no history). Output: projected kg N/ha at season end, headroom remaining, risk score (0–1), and the specific date the farm would breach if the current rate continues. Formula: <code>risk_score = (current_rate_kg_per_day × days_remaining) / headroom_remaining</code>. This module is called by the rule engine after every application event and also on a nightly scheduled run. Write tests against known scenarios — a farm at 50% cap in March should score low; a farm at 85% cap in May should score high.</div>
+          <div class="story-footer"><span class="story-tag">python</span><span class="story-tag">ml</span><span class="story-tag">week 3</span></div>
+        </div>
+
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-010</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">Build the farm dashboard API — balance, projection &amp; status</div>
+          <div class="story-body">Implement <code>GET /farms/{id}/dashboard</code> which returns everything the farmer UI needs in one call: per-paddock N balance table, whole-farm balance, risk score, projected total at 31 July, headroom remaining in kg, headroom remaining as percentage, status flag, and the projected breach date if applicable. This endpoint is called on every page load and after every application is logged. Optimise for latency — a farmer on a slow rural connection should see a result in under 2 seconds. Cache the nightly projection and recompute in real-time only when a new application is logged.</div>
+          <div class="story-footer"><span class="story-tag">api</span><span class="story-tag">backend</span><span class="story-tag">week 3–4</span></div>
+        </div>
+
+        <div class="story junior">
+          <div class="story-top"><span class="story-id">CA-011</span><div class="story-badges"><span class="sbadge sbadge-junior">Junior</span></div></div>
+          <div class="story-title">Build the SMS alert pipeline using Twilio</div>
+          <div class="story-body">Implement the SMS notification system using Twilio (NZ number). The alert triggers when a farm's risk score exceeds 0.65. A single SMS is sent per threshold crossing — not on every application. Message content is written by the Founder (CA-012) and templated here. The pipeline must be idempotent — if the nightly job runs twice, the farmer gets one SMS, not two. Log every SMS sent to the audit trail with timestamp and message body. Implement a simple opt-out mechanism (reply STOP) that disables further alerts for that farm. Test on a real NZ number before Sprint 2 ends.</div>
+          <div class="story-footer"><span class="story-tag">python</span><span class="story-tag">twilio</span><span class="story-tag">week 4</span></div>
+        </div>
+
+        <div class="story you">
+          <div class="story-top"><span class="story-id">CA-012</span><div class="story-badges"><span class="sbadge sbadge-you">You</span></div></div>
+          <div class="story-title">Write all farmer-facing alert copy and define threshold logic</div>
+          <div class="story-body">Write the SMS message templates for each alert level. There are three: an early heads-up at 65% risk score, a serious warning at 85%, and a critical alert at 95%. Each message must be under 160 characters, name the specific farm and current N balance, give one concrete action the farmer can take, and not sound like a robot. Also define the threshold values and cooldown periods (how many days between repeat alerts) — these become config, not hardcoded. Test draft messages on the pilot farmer before they go live. If the farmer finds them confusing or alarming in the wrong way, rewrite them.</div>
+          <div class="story-footer"><span class="story-tag">copywriting</span><span class="story-tag">product</span><span class="story-tag">week 4</span></div>
+        </div>
+
+        <div class="story shared">
+          <div class="story-top"><span class="story-id">CA-013</span><div class="story-badges"><span class="sbadge sbadge-shared">Shared</span></div></div>
+          <div class="story-title">Update farmer UI — dashboard view with risk status</div>
+          <div class="story-body">Extend the Sprint 1 farmer form (CA-006) to show the full dashboard: a table of paddocks with their N balance and status, a whole-farm summary banner (green/amber/red based on risk score), the projected 31 July total, and the headroom remaining. Junior builds the UI against the CA-010 API; Architect reviews for API integration quality; Founder reviews for farmer-friendliness. The status banner must be the most visible element — a farmer should be able to read their compliance status in under 3 seconds without reading any numbers.</div>
+          <div class="story-footer"><span class="story-tag">frontend</span><span class="story-tag">shared</span><span class="story-tag">week 4</span></div>
+        </div>
+
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-014</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">Implement nightly scheduled job — balance refresh &amp; alert evaluation</div>
+          <div class="story-body">Build a nightly cron job (runs at 6am NZ time) that: recomputes all farm balances from the audit trail, re-runs the projection model for every active farm, evaluates risk scores against alert thresholds, and fires the SMS pipeline for any farms that have crossed a threshold since the last run. This is the heartbeat of the Compliance Agent — it ensures farms are monitored even when no application has been logged that day. Include a dead-man's-switch alert to the team if the job fails to run. Log all job runs and results to a monitoring table.</div>
+          <div class="story-footer"><span class="story-tag">scheduler</span><span class="story-tag">backend</span><span class="story-tag">week 4</span></div>
+        </div>
+      </div>
+
+      <div class="milestone"><div class="ms-icon">🏁</div><div><div class="ms-label">Sprint 2 exit criteria</div><div class="ms-text">The pilot farm's dashboard shows a live risk score and projected 31 July total. A test SMS alert fires correctly at the right threshold. The nightly job runs and logs results.</div></div></div>
+    </section>
+
+    <!-- SPRINT 3 -->
+    <section class="sprint rv" id="s3">
+      <div class="sprint-hdr">
+        <div>
+          <div class="sprint-label">Sprint 3 · Weeks 5–6</div>
+          <div class="sprint-title">Delivery — LLM report, gap detection &amp; audit trail</div>
+          <div class="sprint-chips">
+            <span class="chip chip-junior">Junior</span>
+            <span class="chip chip-arch">Architect</span>
+            <span class="chip chip-you">You</span>
+          </div>
+        </div>
+        <div class="sprint-stats">
+          <div class="s-stat"><strong>7</strong> stories</div>
+          <div class="s-stat"><strong>Goal:</strong> generate a PDF report a real auditor would accept</div>
+        </div>
+      </div>
+      <p class="sprint-desc">Sprint 3 is where the product earns its credibility. The LLM report generator turns the audit trail into a PDF document a Canterbury auditor would accept. Junior owns the Anthropic API integration and prompt engineering — this is the deepest AI work in the MVP and where their learning curve is steepest. The Architect finalises the audit trail as a legal-grade record. You validate the report output with an actual rural advisor or FEP auditor, and build the gap detection logic that prompts farmers when their records look incomplete. By end of week 6, the product can produce a report good enough to show at a meeting with DairyNZ.</p>
+
+      <div class="stories">
+        <div class="story junior">
+          <div class="story-top"><span class="story-id">CA-015</span><div class="story-badges"><span class="sbadge sbadge-junior">Junior</span></div></div>
+          <div class="story-title">Integrate Anthropic API and build the report generation prompt</div>
+          <div class="story-body">Integrate the Anthropic Claude API (claude-sonnet-4-6) into the backend. Build the report generation prompt that takes structured audit trail data — paddock-by-paddock N balance, season dates, farm name and location, risk score, and the Canterbury rule set parameters — and produces a well-structured compliance narrative. The LLM receives only structured data, never raw sensor inputs or free-form farmer text. The prompt must instruct the model to: write in plain English a Canterbury FEP auditor expects, include all required data fields, flag any gaps or inconsistencies in the data, and never fabricate numbers. Iterate on the prompt until the output reads like a document a rural advisor would be proud to submit. This story requires multiple prompt iterations — budget the full 4hr daily focus for the week.</div>
+          <div class="story-footer"><span class="story-tag">llm</span><span class="story-tag">anthropic-api</span><span class="story-tag">week 5</span></div>
+        </div>
+
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-016</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">Build the PDF generation pipeline</div>
+          <div class="story-body">Implement a PDF generation pipeline that takes the LLM's text output and produces a formatted PDF report. Use a Python PDF library (WeasyPrint or ReportLab) with a clean template matching Paddock's visual identity — Playfair Display headings, Inter body, green accent. The report must include: a cover page with farm name, season, and date generated; a paddock-by-paddock N application table; a season summary with projected total; a risk status section; and a footer noting the report was generated by Paddock and citing the audit trail reference. The PDF must be a genuine document — not a screenshot, not a browser print. Implement a <code>GET /farms/{id}/report.pdf</code> endpoint that generates and returns it on demand.</div>
+          <div class="story-footer"><span class="story-tag">pdf</span><span class="story-tag">backend</span><span class="story-tag">week 5</span></div>
+        </div>
+
+        <div class="story you">
+          <div class="story-top"><span class="story-id">CA-017</span><div class="story-badges"><span class="sbadge sbadge-you">You</span></div></div>
+          <div class="story-title">Validate report with a real Canterbury FEP auditor</div>
+          <div class="story-body">Generate a report from the pilot farm's data and get it in front of a real FEP auditor or accredited rural advisor. Ask them: would you accept this as part of a consent renewal? What is missing? What would make you reject it? Their feedback directly shapes the final report template. This is the most important validation task in the entire 8 weeks — if the report doesn't pass a real auditor's sniff test, the product doesn't work. Aim to have this meeting in week 5 so there's a full week to incorporate feedback before Sprint 3 ends. Document the feedback and convert it to specific changes for CA-015 and CA-016.</div>
+          <div class="story-footer"><span class="story-tag">validation</span><span class="story-tag">stakeholder</span><span class="story-tag">week 5</span></div>
+        </div>
+
+        <div class="story junior">
+          <div class="story-top"><span class="story-id">CA-018</span><div class="story-badges"><span class="sbadge sbadge-junior">Junior</span></div></div>
+          <div class="story-title">Build the gap detection model</div>
+          <div class="story-body">Implement a Python module that analyses a farm's N application history for suspicious gaps and generates farmer prompts. Three gap types to detect: (1) a paddock with zero applications for 6+ weeks during peak season (July–February), (2) a whole-farm N total that is more than 40% below the regional average for that soil type and stocking rate, and (3) a streak of identical application entries that may indicate copy-paste data entry rather than real records. Gaps do not trigger alerts — they trigger prompts, surfaced in the farmer dashboard as a gentle question: "We haven't seen any applications for Block 3 this season — is that right?" The module runs as part of the nightly job (CA-014). Use S-map soil data for regional average benchmarks.</div>
+          <div class="story-footer"><span class="story-tag">python</span><span class="story-tag">data-quality</span><span class="story-tag">week 6</span></div>
+        </div>
+
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-019</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">Harden the audit trail to legal-grade standard</div>
+          <div class="story-body">The audit trail written in Sprint 1 needs to become legally robust before the product goes in front of a pilot farm. Implement: cryptographic timestamping of every event using a hash chain (each event hashes the previous event's hash), a read-only API endpoint for audit trail export, tamper detection that alerts the team if any past event's hash doesn't verify, and a mechanism for the farmer or their advisor to access and download their complete audit history at any time. Document the audit trail spec clearly enough that a lawyer could understand what it is and why it is trustworthy. This is not gold-plating — it is what makes the report defensible in a resource consent dispute.</div>
+          <div class="story-footer"><span class="story-tag">security</span><span class="story-tag">compliance</span><span class="story-tag">week 5–6</span></div>
+        </div>
+
+        <div class="story shared">
+          <div class="story-top"><span class="story-id">CA-020</span><div class="story-badges"><span class="sbadge sbadge-shared">Shared</span></div></div>
+          <div class="story-title">Add report download and gap prompts to farmer UI</div>
+          <div class="story-body">Junior extends the farmer dashboard to show: a "Download N-cap Report" button that calls the PDF endpoint, any gap detection prompts surfaced as dismissable yellow banners, and a simple season history log showing every application ever recorded with its source (manual entry) and audit trail reference. Founder reviews the UI for clarity and the gap prompt copy for tone — they must feel helpful, not accusatory. Architect reviews the API integration. The combined feature should make a farmer feel the system is working for them, not surveilling them.</div>
+          <div class="story-footer"><span class="story-tag">frontend</span><span class="story-tag">shared</span><span class="story-tag">week 6</span></div>
+        </div>
+
+        <div class="story you">
+          <div class="story-top"><span class="story-id">CA-021</span><div class="story-badges"><span class="sbadge sbadge-you">You</span></div></div>
+          <div class="story-title">Prepare pilot farm onboarding pack and support protocol</div>
+          <div class="story-body">Write a one-page onboarding guide for the pilot farm: what Paddock does, how to log an application, how to read the dashboard, what the alerts mean, and who to call if something looks wrong (Junior, on the ground in NZ). Also define the support protocol for Sprint 4: how the pilot farm reaches the team, turnaround time for issues, and what counts as a show-stopper versus a nice-to-fix. The pilot farm should feel like they have a dedicated team behind them, not that they're beta testing software. Junior is the primary point of contact given they're on the ground — prepare them with an FAQ and common issue resolution guide.</div>
+          <div class="story-footer"><span class="story-tag">gtm</span><span class="story-tag">onboarding</span><span class="story-tag">week 6</span></div>
+        </div>
+      </div>
+
+      <div class="milestone"><div class="ms-icon">🏁</div><div><div class="ms-label">Sprint 3 exit criteria</div><div class="ms-text">The pilot farm can download a PDF report that a real FEP auditor has reviewed and not rejected. Gap prompts appear in the dashboard. The audit trail is tamper-evident.</div></div></div>
+    </section>
+
+    <!-- SPRINT 4 -->
+    <section class="sprint rv" id="s4">
+      <div class="sprint-hdr">
+        <div>
+          <div class="sprint-label">Sprint 4 · Weeks 7–8</div>
+          <div class="sprint-title">Pilot ready — hardening, live farm &amp; investor demo</div>
+          <div class="sprint-chips">
+            <span class="chip chip-you">You</span>
+            <span class="chip chip-arch">Architect</span>
+            <span class="chip chip-junior">Junior</span>
+          </div>
+        </div>
+        <div class="sprint-stats">
+          <div class="s-stat"><strong>7</strong> stories</div>
+          <div class="s-stat"><strong>Goal:</strong> live Canterbury farm + investor-ready demo</div>
+        </div>
+      </div>
+      <p class="sprint-desc">Sprint 4 is about making the product real and making it show. The pilot farm goes live — real applications logged, real alerts fired, real report downloaded. Junior handles on-the-ground support and any issues that surface in live use. The Architect focuses on stability, error handling, and basic security hardening. You run the pilot with the farmer, document the outcomes, and build the investor demo narrative. By end of week 8, you have a live product, a real farmer who has used it, and a demo you can show to DairyNZ and AgriZeroNZ.</p>
+
+      <div class="stories">
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-022</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">Security hardening and basic authentication</div>
+          <div class="story-body">Implement minimum viable security before a real farmer's data goes into the system. Required: JWT-based authentication for all API endpoints, HTTPS enforced everywhere, basic rate limiting on the input API to prevent accidental data floods, environment secrets rotated and stored in AWS Secrets Manager (not .env files in the repo), and a security review of the database — no public endpoints, RDS in private subnet, connection pooling correctly configured. Also implement basic error logging and alerting so the team knows immediately if something breaks in production. This is not a full security audit — it is the minimum required to responsibly hold a farmer's compliance records.</div>
+          <div class="story-footer"><span class="story-tag">security</span><span class="story-tag">auth</span><span class="story-tag">week 7</span></div>
+        </div>
+
+        <div class="story junior">
+          <div class="story-top"><span class="story-id">CA-023</span><div class="story-badges"><span class="sbadge sbadge-junior">Junior</span></div></div>
+          <div class="story-title">On-ground pilot farm setup and live data entry</div>
+          <div class="story-body">Junior visits or video-calls the pilot farm in week 7 to walk through the system together. The session has three goals: enter the farm's real paddock data and season-to-date applications (carried forward from manual records), confirm the running N balance matches what the farmer knows to be true, and send a test SMS alert to the farmer's actual phone so they know what it looks and feels like. Document any confusion or friction — every point of friction is a product bug, not a user error. If the farmer's records don't match the system's calculation, find out why before leaving the session. This is the most important real-world validation in the MVP.</div>
+          <div class="story-footer"><span class="story-tag">pilot</span><span class="story-tag">on-ground</span><span class="story-tag">week 7</span></div>
+        </div>
+
+        <div class="story arch">
+          <div class="story-top"><span class="story-id">CA-024</span><div class="story-badges"><span class="sbadge sbadge-arch">Architect</span></div></div>
+          <div class="story-title">End-to-end testing and error handling hardening</div>
+          <div class="story-body">Write and run a full end-to-end test suite covering the critical user journey: farm onboarded → application logged → balance updated → risk score computed → alert SMS sent → PDF report generated → audit trail verified. All happy-path tests must pass. Also implement graceful error handling for the most likely failure modes: Twilio SMS delivery failure (retry with backoff, log to audit trail), Anthropic API timeout (queue the report generation, notify user when ready), and database connection loss (fail safe — return last cached balance, never return misleading data). Monitor error rates in the live environment throughout Sprint 4.</div>
+          <div class="story-footer"><span class="story-tag">testing</span><span class="story-tag">reliability</span><span class="story-tag">week 7–8</span></div>
+        </div>
+
+        <div class="story junior">
+          <div class="story-top"><span class="story-id">CA-025</span><div class="story-badges"><span class="sbadge sbadge-junior">Junior</span></div></div>
+          <div class="story-title">Add Ravensdown CSV import — manual file upload</div>
+          <div class="story-body">Implement a basic CSV import feature that accepts a Ravensdown delivery report export. This is not an API integration — it is a file upload that the farmer or their advisor drags into the dashboard. Parse the CSV, extract product, quantity, date, and paddock (where specified), convert to elemental N using the product library, and create the same <code>NApplication</code> records as manual entry would. Show the farmer a preview of what will be imported before confirming. Flag any rows the parser can't resolve and ask the farmer to fill them in manually. This is Mechanism 2 from the N-tracking spec — the API version is post-MVP, but the CSV import gives pilots a practical way to bulk-import past records without typing them all in.</div>
+          <div class="story-footer"><span class="story-tag">python</span><span class="story-tag">data-import</span><span class="story-tag">week 8</span></div>
+        </div>
+
+        <div class="story you">
+          <div class="story-top"><span class="story-id">CA-026</span><div class="story-badges"><span class="sbadge sbadge-you">You</span></div></div>
+          <div class="story-title">Document pilot outcomes and build investor demo narrative</div>
+          <div class="story-body">By mid-week 8, the pilot farm has been live for at least a week. Document what happened: did the balance calculation match the farmer's own records? Did the alert fire correctly? What did the farmer say about the report? What did they find confusing? What did they find valuable? These outcomes — even one farmer's honest reaction — are the most powerful thing you can put in front of DairyNZ, AgriZeroNZ, and Callaghan. Write a one-page outcome summary and a 10-minute live demo script. The demo should show the full journey: log an application, watch the balance update, see the risk score, download the report. Real data, real farm, real outcomes. Prepare this to be shown at the first investor or partner meeting.</div>
+          <div class="story-footer"><span class="story-tag">gtm</span><span class="story-tag">investor</span><span class="story-tag">week 8</span></div>
+        </div>
+
+        <div class="story shared">
+          <div class="story-top"><span class="story-id">CA-027</span><div class="story-badges"><span class="sbadge sbadge-shared">Shared</span></div></div>
+          <div class="story-title">Post-MVP backlog grooming and Sprint 5 planning</div>
+          <div class="story-body">At the end of week 8, the whole team reviews what was built, what was deferred, and what the pilot surfaced that nobody anticipated. Together, draft the Sprint 5 backlog. Priority candidates from the pilot: Ravensdown live API integration, a second regional council config (Waikato), Overseer sync, multi-farm accounts for rural advisors, and the first FarmAdvisor Agent stories. This is a collaborative grooming session — Junior's on-ground observations from the pilot farm carry significant weight. Founder owns the final priority call. Output: a ranked list of the next 10 stories, ready for the Sprint 5 planning session.</div>
+          <div class="story-footer"><span class="story-tag">planning</span><span class="story-tag">shared</span><span class="story-tag">week 8</span></div>
+        </div>
+
+        <div class="story you">
+          <div class="story-top"><span class="story-id">CA-028</span><div class="story-badges"><span class="sbadge sbadge-you">You</span></div></div>
+          <div class="story-title">Submit Callaghan Innovation R&amp;D Growth Grant application</div>
+          <div class="story-body">Use the 8 weeks of documented R&D work — schema design, rule engine, breach model, LLM integration, audit trail — as the basis for a Callaghan Innovation R&D Growth Grant application. The grant covers 20% of eligible R&D costs (up to $575K/year) and requires evidence of genuine R&D activity: novel problems, iterative experimentation, documented failures and pivots. The Compliance Agent's rule engine (config-driven, multi-council, novel for NZ agritech), the breach probability model, and the LLM report generation pipeline all qualify. Target submission in week 8 alongside the pilot outcomes. Having a live product with a real farmer makes the application significantly stronger.</div>
+          <div class="story-footer"><span class="story-tag">funding</span><span class="story-tag">callaghan</span><span class="story-tag">week 8</span></div>
+        </div>
+      </div>
+
+      <div class="milestone" style="background:rgba(76,175,114,.1);border-color:rgba(76,175,114,.35)"><div class="ms-icon">🎯</div><div><div class="ms-label">MVP complete — week 8</div><div class="ms-text">A real Canterbury dairy farm is using Paddock to track their N-cap. They have logged applications, seen their risk score, received an SMS alert, and downloaded a report. The team has outcomes to show investors. Sprint 5 is planned.</div></div></div>
+    </section>
+
+  </div>
+</div>
+
+<footer style="background:#080F0A;padding:3rem 4vw 2rem;border-top:1px solid var(--border)">
+  <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white)">Paddock<span style="color:var(--green)">.</span></div>
+      <div style="font-size:.75rem;color:var(--dim);margin-top:.2rem">8-Week MVP Sprint Plan · Compliance Agent · June 2026</div>
+    </div>
+    <div style="font-size:.75rem;color:var(--dim)">Internal document · Not for distribution</div>
+  </div>
+</footer>
+
+<script>
+function scrollTo(id){
+  const el=document.getElementById(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.rail-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// Scroll spy for rail + sidebar
+const sections=['scope','team','s1','s2','s3','s4'];
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      document.querySelectorAll('.sb-link').forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+id)});
+    }
+  });
+},{threshold:.2,rootMargin:'-110px 0px -60% 0px'});
+sections.forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el)});
+
+// Reveal
+const rvObs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.08});
+document.querySelectorAll('.rv').forEach(el=>rvObs.observe(el));
+</script>
+</body>
+</html>
