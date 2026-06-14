@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CA-003 — Nitrogen Product Database & N% Conversion Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0E1A10;--surface:#141F16;--raised:#1A2A1D;--border:#243328;--border-hi:#3A5040;
+  --green:#4CAF72;--gold:#E8C97A;--blue:#6BA3D6;--coral:#E8896A;--purple:#9B8EC4;
+  --white:#F5F0E8;--mist:#8DAF94;--dim:#4A6B50;
+  --mono-bg:#080E09;--mono-text:#A8D8B4;--mono-comment:#4A7050;
+  --mono-key:#E8C97A;--mono-str:#8EC48E;--mono-fn:#6BA3D6;--mono-num:#E8896A;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-size:15px;line-height:1.7;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 4vw;background:rgba(14,26,16,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);text-decoration:none}.logo span{color:var(--green)}
+.nav-r{display:flex;align-items:center;gap:.75rem}
+.nav-badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;padding:.25rem .7rem;border-radius:3px;border:1px solid}
+.badge-junior{color:var(--gold);border-color:rgba(232,201,122,.3);background:rgba(232,201,122,.08)}
+.badge-sprint{color:var(--mist);border-color:var(--border);background:var(--raised)}
+
+/* ── TABS ── */
+.tab-bar{position:sticky;top:52px;z-index:100;background:rgba(14,26,16,.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;gap:0;overflow-x:auto}
+.tab-bar::-webkit-scrollbar{height:3px}.tab-bar::-webkit-scrollbar-thumb{background:var(--border-hi)}
+.tab-btn{flex-shrink:0;padding:.85rem 1.5rem;font-size:.8rem;font-weight:500;color:var(--mist);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;white-space:nowrap}
+.tab-btn:hover{color:var(--white)}
+.tab-btn.active{color:var(--green);border-bottom-color:var(--green)}
+.tab-panel{display:none;max-width:960px;margin:0 auto;padding:2.5rem 4vw 6rem}
+.tab-panel.active{display:block}
+
+/* ── TYPOGRAPHY ── */
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--green);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.75rem}
+.eyebrow-gold{color:var(--gold)}
+.eyebrow-blue{color:var(--blue)}
+h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;line-height:1.1;color:var(--white);margin-bottom:1rem}
+h2{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--white);margin:2.5rem 0 1rem;line-height:1.2}
+h3{font-size:1rem;font-weight:600;color:var(--white);margin:1.75rem 0 .6rem}
+p{color:var(--mist);line-height:1.85;margin-bottom:1rem}
+p:last-child{margin-bottom:0}
+a{color:var(--green);text-decoration:none}.a:hover{text-decoration:underline}
+strong{color:var(--white);font-weight:600}
+
+/* ── HERO STRIP ── */
+.hero-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:5.5rem 4vw 2.5rem}
+.hero-inner{max-width:960px;margin:0 auto}
+.story-meta{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.meta-pill{font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:.2rem .65rem;border-radius:3px;border:1px solid}
+.pill-id{color:var(--mist);border-color:var(--border);background:var(--raised)}
+.pill-junior{color:var(--gold);border-color:rgba(232,201,122,.3);background:rgba(232,201,122,.08)}
+.pill-sprint{color:var(--green);border-color:rgba(76,175,114,.3);background:rgba(76,175,114,.08)}
+.pill-week{color:var(--blue);border-color:rgba(107,163,214,.3);background:rgba(107,163,214,.08)}
+.hero-sub{font-size:1rem;color:var(--mist);max-width:720px;line-height:1.85;margin-top:.75rem}
+.goal-box{margin-top:1.5rem;padding:1rem 1.25rem;background:rgba(76,175,114,.07);border:1px solid rgba(76,175,114,.25);border-left:3px solid var(--green);border-radius:6px}
+.goal-box p{font-size:.88rem;color:var(--white);margin:0}
+.goal-box p span{color:var(--green);font-weight:600}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:1.5rem;margin-bottom:1.25rem}
+.card-gold{border-left:3px solid var(--gold)}
+.card-blue{border-left:3px solid var(--blue)}
+.card-green{border-left:3px solid var(--green)}
+.card-coral{border-left:3px solid var(--coral)}
+.card-purple{border-left:3px solid var(--purple)}
+.card h4{font-size:.92rem;font-weight:600;color:var(--white);margin-bottom:.5rem}
+.card p{font-size:.85rem}
+
+/* ── CODE BLOCKS ── */
+.code-wrap{margin:1.25rem 0;border-radius:7px;overflow:hidden;border:1px solid var(--border)}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;background:var(--raised);border-bottom:1px solid var(--border)}
+.code-header span{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--mist);letter-spacing:.06em}
+.code-body{background:var(--mono-bg);padding:1.25rem 1.5rem;overflow-x:auto}
+.code-body pre{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.8;color:var(--mono-text);white-space:pre}
+.ck{color:var(--mono-key)}   /* keyword */
+.cs{color:var(--mono-str)}   /* string */
+.cc{color:var(--mono-comment)} /* comment */
+.cf{color:var(--mono-fn)}    /* function/class */
+.cn{color:var(--mono-num)}   /* number */
+.cm{color:#C8A8D8}           /* method */
+
+/* ── INLINE CODE ── */
+code{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--raised);color:var(--mono-text);padding:.1rem .4rem;border-radius:3px;border:1px solid var(--border)}
+
+/* ── STEPS ── */
+.steps{display:flex;flex-direction:column;gap:0;position:relative;padding-left:2.25rem;margin:1.5rem 0}
+.steps::before{content:'';position:absolute;left:.65rem;top:0;bottom:0;width:1px;background:var(--border)}
+.step{position:relative;padding-bottom:1.75rem}
+.step:last-child{padding-bottom:0}
+.step::before{content:'';position:absolute;left:-1.62rem;top:.45rem;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid var(--green)}
+.step-num{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--green);letter-spacing:.1em;display:block;margin-bottom:.25rem}
+.step h4{font-size:.92rem;font-weight:600;color:var(--white);margin-bottom:.4rem}
+.step p{font-size:.85rem}
+
+/* ── WARNING / NOTE / TIP BOXES ── */
+.note{padding:1rem 1.25rem;border-radius:6px;margin:1.25rem 0;font-size:.85rem}
+.note-green{background:rgba(76,175,114,.07);border:1px solid rgba(76,175,114,.25);color:var(--white)}
+.note-gold{background:rgba(232,201,122,.07);border:1px solid rgba(232,201,122,.25);color:var(--white)}
+.note-blue{background:rgba(107,163,214,.07);border:1px solid rgba(107,163,214,.25);color:var(--white)}
+.note-coral{background:rgba(232,137,106,.07);border:1px solid rgba(232,137,106,.3);color:var(--white)}
+.note-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.4rem}
+.nl-green{color:var(--green)}.nl-gold{color:var(--gold)}.nl-blue{color:var(--blue)}.nl-coral{color:var(--coral)}
+
+/* ── FERTILISER TABLE ── */
+.fert-table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.82rem}
+.fert-table th{text-align:left;font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);padding:.65rem 1rem;border-bottom:1px solid var(--border);white-space:nowrap}
+.fert-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--white);vertical-align:top}
+.fert-table tr:last-child td{border-bottom:none}
+.fert-table tr:hover td{background:rgba(76,175,114,.04)}
+.n-pct{font-family:'JetBrains Mono',monospace;font-weight:500}
+.n-high{color:var(--green)}
+.n-mid{color:var(--gold)}
+.n-low{color:var(--mist)}
+.src-badge{font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:.1rem .4rem;border-radius:2px;border:1px solid}
+.src-r{color:#E87A7A;border-color:rgba(232,122,122,.3);background:rgba(232,122,122,.07)}
+.src-b{color:var(--blue);border-color:rgba(107,163,214,.3);background:rgba(107,163,214,.07)}
+
+/* ── INTERFACE BOX ── */
+.iface-box{background:var(--mono-bg);border:1px solid var(--border-hi);border-radius:7px;overflow:hidden;margin:1.25rem 0}
+.iface-header{padding:.6rem 1rem;background:var(--raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem}
+.iface-dot{width:8px;height:8px;border-radius:50%}
+.iface-title{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--mist)}
+.iface-body{padding:1.25rem 1.5rem}
+.iface-body pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.9;color:var(--mono-text);white-space:pre}
+
+/* ── LEARNING RESOURCES ── */
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0}
+.res-card{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:1.25rem}
+.res-card h4{font-size:.88rem;font-weight:600;color:var(--white);margin-bottom:.35rem}
+.res-card p{font-size:.8rem;margin-bottom:.6rem}
+.res-card a{font-size:.78rem;color:var(--green);font-family:'JetBrains Mono',monospace}
+.res-priority{font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:.15rem .4rem;border-radius:2px;border:1px solid;margin-bottom:.5rem;display:inline-block}
+.pri-must{color:var(--coral);border-color:rgba(232,137,106,.3);background:rgba(232,137,106,.08)}
+.pri-should{color:var(--gold);border-color:rgba(232,201,122,.3);background:rgba(232,201,122,.08)}
+.pri-nice{color:var(--mist);border-color:var(--border)}
+
+/* ── ARCH INPUT ── */
+.arch-section{background:rgba(107,163,214,.05);border:1px solid rgba(107,163,214,.2);border-radius:8px;padding:1.5rem;margin:1.25rem 0}
+.arch-section h4{font-size:.92rem;font-weight:600;color:var(--blue);margin-bottom:.6rem}
+.arch-section p{font-size:.85rem}
+.iface-line{display:flex;gap:1rem;align-items:baseline;padding:.4rem 0;border-bottom:1px solid var(--border)}
+.iface-line:last-child{border-bottom:none}
+.iface-name{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--mono-fn);min-width:260px;flex-shrink:0}
+.iface-desc{font-size:.8rem;color:var(--mist)}
+
+/* ── CHECKLIST ── */
+.checklist{list-style:none;margin:1rem 0}
+.checklist li{display:flex;align-items:flex-start;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.85rem;color:var(--mist)}
+.checklist li:last-child{border-bottom:none}
+.checklist li::before{content:'☐';font-size:1rem;color:var(--dim);flex-shrink:0;margin-top:.05rem}
+.checklist li strong{color:var(--white)}
+
+/* ── REVEAL ── */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s}
+.rv.in{opacity:1;transform:none}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){.res-grid{grid-template-columns:1fr}.iface-name{min-width:auto}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">Paddock<span>.</span></a>
+  <div class="nav-r">
+    <span class="nav-badge badge-sprint">Sprint 1</span>
+    <span class="nav-badge badge-junior">Junior Dev</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="hero-inner rv">
+    <div class="story-meta">
+      <span class="meta-pill pill-id">CA-003</span>
+      <span class="meta-pill pill-junior">👤 Junior AI Dev</span>
+      <span class="meta-pill pill-sprint">Sprint 1</span>
+      <span class="meta-pill pill-week">Week 1 start</span>
+    </div>
+    <div class="eyebrow">Story brief</div>
+    <h1>Nitrogen product database<br>&amp; N% conversion library</h1>
+    <p class="hero-sub">Build a Python library that takes a fertiliser product name and weight applied and returns kilograms of elemental nitrogen. This is your first deliverable on the Paddock project. Read every tab before writing any code.</p>
+    <div class="goal-box">
+      <p><span>Definition of done:</span> A function called <code>calculate_nitrogen_kg()</code> takes a product name (string) and weight applied (float, kg/ha or total kg), fuzzy-matches the product to the database, and returns elemental nitrogen in kg. It raises a clear error if no match is found above threshold. The Architect can import this library from the rule engine with zero changes.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('architect')">🏗 Architect Input</button>
+  <button class="tab-btn" onclick="switchTab('setup')">⚙ Project Setup</button>
+  <button class="tab-btn" onclick="switchTab('database')">🌱 Product Database</button>
+  <button class="tab-btn" onclick="switchTab('build')">🔨 Build Guide</button>
+  <button class="tab-btn" onclick="switchTab('tests')">✅ Tests</button>
+  <button class="tab-btn" onclick="switchTab('learning')">📚 Learning</button>
+</div>
+
+<!-- ── OVERVIEW ── -->
+<div class="tab-panel active" id="panel-overview">
+
+  <div class="eyebrow" style="margin-top:.5rem">What you are building</div>
+  <h2 style="margin-top:.25rem">The complete picture</h2>
+  <p>The Compliance Agent needs to know, for any nitrogen fertiliser a NZ dairy farmer has applied, exactly how many kilograms of elemental nitrogen that represents. Your job is to build the Python library that does this calculation reliably.</p>
+  <p>This library will be used inside the rule engine (built in Sprint 2 by the Architect). It is a <strong>dependency of almost everything else in the product</strong>. If the N% figures are wrong, every compliance calculation in the system will be wrong. Take this seriously.</p>
+
+  <h2>Why this is harder than it sounds</h2>
+  <p>A farmer types "urea" — easy. But farmers also type "Urea 46", "UREA", "urea fert", "sustain", "SustaiN 46", "sustain ammo 36n", "can", "calcium ammonium nitrate", or just "the white stuff". Your library needs to handle all of these gracefully, match to the right product, and calculate correctly.</p>
+  <p>You will build a <strong>fuzzy match function</strong> — a function that finds the closest match in your database even when the spelling isn't exact. This is a real-world AI/data technique used in production systems everywhere.</p>
+
+  <div class="note note-gold">
+    <span class="note-label nl-gold">// important before you start</span>
+    Read the <strong>Architect Input</strong> tab before writing any code. The Architect has defined the exact function signatures and return format your library must use. If you build to a different interface, the rule engine in Sprint 2 will break and the Architect will have to rewrite your code. That wastes everyone's time.
+  </div>
+
+  <h2>How the library fits into the system</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>system-flow.txt</span><span>concept</span></div>
+    <div class="code-body"><pre>
+Farmer logs application:
+  product = "sustain"
+  weight_kg_per_ha = 150
+  paddock_area_ha = 12.5
+
+          ↓  your library  ↓
+
+n_lib.calculate_nitrogen_kg(
+    product_name="sustain",
+    weight_kg=150 * 12.5     # total kg applied
+)
+
+Returns:
+  {
+    "product_matched": "SustaiN",
+    "n_pct": 46.0,
+    "weight_kg": 1875.0,
+    "n_kg": 862.5,            ← 1875 × 0.46
+    "match_score": 95,
+    "source": "Ballance"
+  }
+
+          ↓  rule engine (Sprint 2)  ↓
+
+SeasonBalance updated:
+  paddock "Block 4": +69.0 kg N/ha   ← 862.5 / 12.5
+</pre></div>
+  </div>
+
+  <h2>What you will deliver</h2>
+  <div class="steps">
+    <div class="step"><span class="step-num">DELIVERABLE 01</span><h4>products.json — the fertiliser database</h4><p>A JSON file containing the 40 most common NZ dairy fertilisers with their N% content, supplier, aliases, and other metadata. This is the source of truth for all N calculations.</p></div>
+    <div class="step"><span class="step-num">DELIVERABLE 02</span><h4>n_converter.py — the conversion library</h4><p>A Python module with a clean, well-documented public API. The Architect imports this. It includes the fuzzy match function and the N kg calculator.</p></div>
+    <div class="step"><span class="step-num">DELIVERABLE 03</span><h4>test_n_converter.py — the test suite</h4><p>A pytest test file covering: exact matches, fuzzy matches, alias matches, case variations, below-threshold inputs (should raise error), and edge cases. Minimum 20 test cases.</p></div>
+    <div class="step"><span class="step-num">DELIVERABLE 04</span><h4>README.md — documentation</h4><p>A short markdown file explaining what the library does, how to install dependencies, how to run tests, and the public API with examples. The Architect should be able to use your library from the README alone.</p></div>
+  </div>
+
+  <h2>Timeline</h2>
+  <div class="card card-green">
+    <h4>Week 1 — all 4 deliverables</h4>
+    <p>At 4 hours/day × 5 days = 20 hours. Suggested split: Day 1 — read everything, set up project environment. Day 2 — build products.json database. Day 3 — build n_converter.py. Day 4 — build test suite. Day 5 — write README, clean up code, share with Architect for review.</p>
+  </div>
+  <div class="note note-coral">
+    <span class="note-label nl-coral">// share early, not at the end</span>
+    On Day 2, share your draft <code>products.json</code> with the Architect before writing a line of Python. On Day 3, share the function signatures (just the function names and parameters, no implementation yet). Catching a misunderstanding on Day 2 costs 10 minutes. Catching it on Day 5 costs a full day's rewrite.
+  </div>
+</div>
+
+<!-- ── ARCHITECT INPUT ── -->
+<div class="tab-panel" id="panel-architect">
+
+  <div class="eyebrow eyebrow-blue" style="margin-top:.5rem">From the Architect / Lead Dev</div>
+  <h2 style="margin-top:.25rem">Interface specification &amp; technical requirements</h2>
+  <p>This tab contains everything the Architect has defined that you must implement exactly as specified. These decisions have been made to ensure your library integrates cleanly with the rule engine, the API, and future parts of the system. <strong>Do not change these interfaces without talking to the Architect first.</strong></p>
+
+  <div class="note note-blue">
+    <span class="note-label nl-blue">// why interfaces matter</span>
+    When two developers build different parts of a system that need to connect, they agree on the "contract" between them first — the function names, parameter types, and return format. This is called an interface. If you build to a different interface, the code that calls your library (the rule engine) will crash. Think of it like a power plug — the shape has to match, regardless of what's inside the wall.
+  </div>
+
+  <h2>Repository structure — where your files go</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>project structure</span><span>agreed with Architect</span></div>
+    <div class="code-body"><pre>
+paddock/
+├── libs/
+│   └── n_converter/          ← your folder
+│       ├── __init__.py       ← makes it a Python package
+│       ├── n_converter.py    ← your main library file
+│       ├── products.json     ← your fertiliser database
+│       ├── test_n_converter.py
+│       └── README.md
+├── requirements.txt          ← add rapidfuzz here
+└── ...rest of project
+</pre></div>
+  </div>
+
+  <h2>Required function signatures</h2>
+  <p>These are the exact functions the Architect's rule engine will call. Names, parameters, and return types must match exactly. You choose how to implement the internals.</p>
+
+  <div class="arch-section">
+    <h4>Function 1 — the main public API</h4>
+    <div class="code-wrap" style="margin-top:.75rem">
+      <div class="code-header"><span>n_converter.py</span><span>required signature</span></div>
+      <div class="code-body"><pre>
+<ck>def</ck> <cf>calculate_nitrogen_kg</cf>(
+    product_name: <cf>str</cf>,
+    weight_kg: <cf>float</cf>,
+    match_threshold: <cf>int</cf> = <cn>75</cn>
+) -> <cf>dict</cf>:
+    <cs>"""
+    Calculate elemental nitrogen from a fertiliser product name and weight.
+
+    Args:
+        product_name:    What the farmer typed. Case-insensitive.
+                         e.g. "urea", "SustaiN", "can", "urea 46"
+        weight_kg:       Total kilograms of product applied (NOT kg/ha).
+                         The caller handles the ha multiplication.
+        match_threshold: Minimum fuzzy match score (0-100) to accept a match.
+                         Default 75. Below this, raise ProductNotFoundError.
+
+    Returns:
+        dict with keys:
+            product_matched (str):  canonical product name, e.g. "Urea"
+            n_pct           (float): nitrogen percentage, e.g. 46.0
+            weight_kg       (float): same as input, for traceability
+            n_kg            (float): elemental nitrogen in kg (weight_kg × n_pct/100)
+            match_score     (int):   fuzzy match score 0-100
+            source          (str):   "Ravensdown" | "Ballance" | "Generic"
+            supplier_code   (str):   internal product code, e.g. "RD-UREA-46"
+
+    Raises:
+        ProductNotFoundError: if no match found above match_threshold
+        ValueError:           if weight_kg is negative or zero
+    """</cs>
+    <ck>pass</ck>  <cc># your implementation goes here</cc>
+</pre></div>
+    </div>
+  </div>
+
+  <div class="arch-section">
+    <h4>Function 2 — search (for UI autocomplete)</h4>
+    <div class="code-wrap" style="margin-top:.75rem">
+      <div class="code-header"><span>n_converter.py</span><span>required signature</span></div>
+      <div class="code-body"><pre>
+<ck>def</ck> <cf>search_products</cf>(
+    query: <cf>str</cf>,
+    limit: <cf>int</cf> = <cn>5</cn>,
+    threshold: <cf>int</cf> = <cn>60</cn>
+) -> <cf>list</cf>[<cf>dict</cf>]:
+    <cs>"""
+    Search the product database and return ranked matches.
+    Used by the farmer UI for autocomplete suggestions.
+
+    Args:
+        query:     Partial or misspelled product name
+        limit:     Max number of results to return (default 5)
+        threshold: Min match score to include in results (default 60)
+
+    Returns:
+        List of dicts, sorted by match_score descending:
+        [
+            {
+                "product_name": "SustaiN",
+                "n_pct": 46.0,
+                "source": "Ballance",
+                "supplier_code": "BA-SUSTAIN-46",
+                "match_score": 92
+            },
+            ...
+        ]
+        Returns empty list [] if no matches above threshold.
+        Never raises an exception.
+    """</cs>
+    <ck>pass</ck>
+</pre></div>
+    </div>
+  </div>
+
+  <div class="arch-section">
+    <h4>Function 3 — get by code (internal use)</h4>
+    <div class="code-wrap" style="margin-top:.75rem">
+      <div class="code-header"><span>n_converter.py</span><span>required signature</span></div>
+      <div class="code-body"><pre>
+<ck>def</ck> <cf>get_product_by_code</cf>(supplier_code: <cf>str</cf>) -> <cf>dict</cf> | <ck>None</ck>:
+    <cs>"""
+    Look up a product by its exact supplier code.
+    Used by the rule engine when re-processing stored applications.
+    Returns the product dict or None if not found.
+    """</cs>
+    <ck>pass</ck>
+</pre></div>
+    </div>
+  </div>
+
+  <div class="arch-section">
+    <h4>Custom exception — must be importable</h4>
+    <div class="code-wrap" style="margin-top:.75rem">
+      <div class="code-header"><span>n_converter.py</span><span>required</span></div>
+      <div class="code-body"><pre>
+<ck>class</ck> <cf>ProductNotFoundError</cf>(<cf>Exception</cf>):
+    <cs>"""
+    Raised when no fertiliser product matches the query
+    above the minimum threshold.
+
+    Attributes:
+        query       (str): what the user typed
+        best_match  (str): closest product found (may be None)
+        best_score  (int): score of the closest match
+    """</cs>
+    <ck>def</ck> <cf>__init__</cf>(<ck>self</ck>, query, best_match=<ck>None</ck>, best_score=<cn>0</cn>):
+        <ck>self</ck>.<cm>query</cm> = query
+        <ck>self</ck>.<cm>best_match</cm> = best_match
+        <ck>self</ck>.<cm>best_score</cm> = best_score
+        <cf>super</cf>().<cm>__init__</cm>(
+            <cs>f"No product found for '</cs>{query}<cs>'. "</cs>
+            <cs>f"Closest: '</cs>{best_match}<cs>' (score: </cs>{best_score}<cs>)"</cs>
+        )
+</pre></div>
+    </div>
+  </div>
+
+  <h2>JSON database schema — exact format required</h2>
+  <p>The Architect will load <code>products.json</code> directly. It must be valid JSON and match this schema exactly for every product.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span>products.json</span><span>schema — one entry example</span></div>
+    <div class="code-body"><pre>
+{
+  <cs>"products"</cs>: [
+    {
+      <cs>"supplier_code"</cs>:  <cs>"RD-UREA-46"</cs>,      <cc>// unique ID — format: XX-NAME-NPCT</cc>
+      <cs>"canonical_name"</cs>: <cs>"Urea"</cs>,            <cc>// the "official" product name</cc>
+      <cs>"n_pct"</cs>:          <cn>46.0</cn>,              <cc>// nitrogen % — always a float</cc>
+      <cs>"source"</cs>:         <cs>"Ravensdown"</cs>,      <cc>// "Ravensdown" | "Ballance" | "Generic"</cc>
+      <cs>"is_synthetic"</cs>:   <ck>true</ck>,              <cc>// true = counts toward N-cap</cc>
+      <cs>"aliases"</cs>: [                       <cc>// all the ways farmers might type it</cc>
+        <cs>"urea"</cs>, <cs>"urea 46"</cs>, <cs>"urea46"</cs>, <cs>"46% urea"</cs>,
+        <cs>"n46"</cs>, <cs>"urea fert"</cs>
+      ],
+      <cs>"notes"</cs>: <cs>"Highest N content solid fertiliser in NZ. 46% N."</cs>
+    }
+  ]
+}
+</pre></div>
+  </div>
+
+  <h2>Architect's rules you must follow</h2>
+  <div class="card card-blue">
+    <h4>Rule 1 — n_pct is always a float</h4>
+    <p>Never store N% as an integer. <code>46</code> is wrong. <code>46.0</code> is correct. This prevents subtle bugs when the rule engine does arithmetic.</p>
+  </div>
+  <div class="card card-blue">
+    <h4>Rule 2 — weight_kg is total kg, not kg/ha</h4>
+    <p>Your function receives total kilograms already applied to the paddock. The caller (rule engine) handles the area multiplication. Never do area calculations inside this library.</p>
+  </div>
+  <div class="card card-blue">
+    <h4>Rule 3 — never silently return a wrong match</h4>
+    <p>If your fuzzy match score is below <code>match_threshold</code>, raise <code>ProductNotFoundError</code>. Do not return a guess. A wrong N% calculation is worse than an error — it produces silently incorrect compliance data.</p>
+  </div>
+  <div class="card card-blue">
+    <h4>Rule 4 — the library must be side-effect free</h4>
+    <p>Importing your library must not print anything, connect to any API, or write any files. It only loads <code>products.json</code> once at import time. Everything else is pure functions.</p>
+  </div>
+  <div class="card card-blue">
+    <h4>Rule 5 — supplier_code must be unique and stable</h4>
+    <p>Once you assign a <code>supplier_code</code>, never change it. The rule engine stores it in the database to link back to your product. Changing a code after Sprint 2 will break existing records.</p>
+  </div>
+
+  <h2>How to share work-in-progress with the Architect</h2>
+  <p>Day 2: Share your completed <code>products.json</code> via a GitHub PR (draft is fine). Title it "WIP: CA-003 product database — review N% figures". Tag Architect for review.</p>
+  <p>Day 3: Before implementing, post the three function signatures (names, params, return types — no code body) in Slack with "Does this match what you need for the rule engine?" Wait for reply before implementing.</p>
+  <p>Day 5: Open final PR. The Architect will review for: correct interface, test coverage, and JSON schema compliance.</p>
+</div>
+
+<!-- ── PROJECT SETUP ── -->
+<div class="tab-panel" id="panel-setup">
+
+  <div class="eyebrow" style="margin-top:.5rem">Before writing any code</div>
+  <h2 style="margin-top:.25rem">Set up your Python project environment</h2>
+  <p>Professional Python projects always use a <strong>virtual environment</strong> — an isolated Python installation just for this project. This means the packages you install for Paddock don't conflict with anything else on your computer, and everyone on the team uses exactly the same package versions.</p>
+
+  <div class="note note-gold">
+    <span class="note-label nl-gold">// new concept from 100 days of code</span>
+    You likely ran <code>pip install</code> globally in the Udemy course. In professional work, you always create a virtual environment first. This is one of the most important habits to build. It takes 2 minutes and saves hours of debugging mysterious import errors.
+  </div>
+
+  <h2>Step 1 — get the repo</h2>
+  <p>The Architect will set up the main repository (CA-001). Ask them to add you as a collaborator on GitHub. Then:</p>
+  <div class="code-wrap">
+    <div class="code-header"><span>terminal</span><span>clone and navigate</span></div>
+    <div class="code-body"><pre>
+<cc># Clone the repository to your machine</cc>
+git clone https://github.com/paddock-ai/paddock.git
+cd paddock
+
+<cc># Create your feature branch — never work on main</cc>
+git checkout -b feature/CA-003-n-converter
+</pre></div>
+  </div>
+
+  <h2>Step 2 — create the virtual environment</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>terminal</span><span>macOS / Linux</span></div>
+    <div class="code-body"><pre>
+<cc># Check your Python version first — must be 3.10 or higher</cc>
+python3 --version
+
+<cc># Create the virtual environment</cc>
+python3 -m venv .venv
+
+<cc># Activate it — you must do this every time you open a new terminal</cc>
+source .venv/bin/activate
+
+<cc># You'll see (.venv) appear at the start of your terminal prompt</cc>
+<cc># That means it's active. Good.</cc>
+
+<cc># Upgrade pip first</cc>
+pip install --upgrade pip
+</pre></div>
+  </div>
+  <div class="code-wrap">
+    <div class="code-header"><span>terminal</span><span>Windows (PowerShell)</span></div>
+    <div class="code-body"><pre>
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install --upgrade pip
+</pre></div>
+  </div>
+
+  <h2>Step 3 — install your dependencies</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>terminal</span><span>install packages</span></div>
+    <div class="code-body"><pre>
+<cc># Install rapidfuzz — the fuzzy matching library</cc>
+pip install rapidfuzz
+
+<cc># Install pytest — the testing framework</cc>
+pip install pytest
+
+<cc># Save your dependencies to requirements.txt</cc>
+<cc># (the Architect's CA-001 may have already started this file)</cc>
+pip freeze > requirements.txt
+</pre></div>
+  </div>
+
+  <h2>Step 4 — create your folder structure</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>terminal</span><span>create files</span></div>
+    <div class="code-body"><pre>
+<cc># From the project root</cc>
+mkdir -p libs/n_converter
+cd libs/n_converter
+
+<cc># Create empty files</cc>
+touch __init__.py
+touch n_converter.py
+touch products.json
+touch test_n_converter.py
+touch README.md
+</pre></div>
+  </div>
+
+  <h2>Step 5 — set up your __init__.py</h2>
+  <p>The <code>__init__.py</code> file makes your folder a Python package and controls what gets exported when someone does <code>from libs.n_converter import ...</code>.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span>libs/n_converter/__init__.py</span><span>copy this exactly</span></div>
+    <div class="code-body"><pre>
+<ck>from</ck> <cf>.n_converter</cf> <ck>import</ck> (
+    <cf>calculate_nitrogen_kg</cf>,
+    <cf>search_products</cf>,
+    <cf>get_product_by_code</cf>,
+    <cf>ProductNotFoundError</cf>,
+)
+
+<cm>__version__</cm> = <cs>"0.1.0"</cs>
+<cm>__all__</cm> = [
+    <cs>"calculate_nitrogen_kg"</cs>,
+    <cs>"search_products"</cs>,
+    <cs>"get_product_by_code"</cs>,
+    <cs>"ProductNotFoundError"</cs>,
+]
+</pre></div>
+  </div>
+
+  <h2>Step 6 — verify your setup works</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>terminal</span><span>sanity check</span></div>
+    <div class="code-body"><pre>
+<cc># From the project root (not inside libs/n_converter)</cc>
+python3 -c "from rapidfuzz import fuzz; print(fuzz.ratio('urea', 'Urea'))"
+<cc># Should print: 100.0</cc>
+
+python3 -m pytest libs/n_converter/test_n_converter.py -v
+<cc># Should say "no tests ran" or similar — that's fine for now</cc>
+</pre></div>
+  </div>
+
+  <div class="note note-green">
+    <span class="note-label nl-green">// IDE recommendation</span>
+    Use <strong>VS Code</strong> with the Python extension. When you open the project, press Cmd+Shift+P (Mac) or Ctrl+Shift+P (Windows), type "Python: Select Interpreter", and choose the <code>.venv</code> you just created. VS Code will then highlight syntax errors, autocomplete function names, and show documentation when you hover over functions — all of which will save you hours.
+  </div>
+
+  <h2>Git workflow for this story</h2>
+  <p>Commit little and often. A good rule: every time you finish a self-contained piece of work (a function, a test, the database), commit it. Don't wait until you're done.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span>terminal</span><span>daily git workflow</span></div>
+    <div class="code-body"><pre>
+<cc># At end of each work session</cc>
+git add libs/n_converter/
+git commit -m "CA-003: add urea and CAN products to database"
+git push origin feature/CA-003-n-converter
+
+<cc># Good commit message format:</cc>
+<cc># "CA-003: [what you did]"</cc>
+<cc># Examples:</cc>
+<cc># "CA-003: add calculate_nitrogen_kg function with basic test"</cc>
+<cc># "CA-003: add fuzzy match with rapidfuzz, threshold 75"</cc>
+<cc># "CA-003: complete 40-product database from Ravensdown and Ballance"</cc>
+</pre></div>
+  </div>
+</div>
+
+<!-- ── PRODUCT DATABASE ── -->
+<div class="tab-panel" id="panel-database">
+
+  <div class="eyebrow" style="margin-top:.5rem">Research complete — sourced from Ravensdown &amp; Ballance</div>
+  <h2 style="margin-top:.25rem">The 40 NZ dairy fertiliser products</h2>
+  <p>The table below is your source of truth for building <code>products.json</code>. N% figures are sourced directly from Ravensdown and Ballance product pages and Stats NZ agricultural data. Do not change N% values without citing a source in the JSON <code>notes</code> field.</p>
+
+  <div class="note note-gold">
+    <span class="note-label nl-gold">// N-cap counting rule</span>
+    Only <strong>synthetic nitrogen</strong> counts toward the 190 kg N/ha cap under NZ regulations. Organic nitrogen (from effluent, compost) is excluded. The <code>is_synthetic</code> field in your JSON controls this. All products in this table are synthetic unless marked otherwise.
+  </div>
+
+  <h3>High nitrogen — primary products (most commonly applied)</h3>
+  <div style="overflow-x:auto">
+  <table class="fert-table">
+    <thead><tr><th>Canonical name</th><th>N%</th><th>Supplier</th><th>Supplier code</th><th>Common aliases</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Urea</strong></td><td><span class="n-pct n-high">46.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-UREA-46</code></td><td>urea, urea 46, urea46, 46% urea, n46, carbamide</td></tr>
+      <tr><td><strong>Nrich Urea</strong></td><td><span class="n-pct n-high">46.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-NRICH-UREA-46</code></td><td>nrich, nrich urea, ballance urea, kapuni urea</td></tr>
+      <tr><td><strong>SustaiN</strong></td><td><span class="n-pct n-high">46.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-SUSTAIN-46</code></td><td>sustain, sustain 46, sustain urea, agrotain urea, coated urea ballance</td></tr>
+      <tr><td><strong>N-Protect</strong></td><td><span class="n-pct n-high">46.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-NPROTECT-46</code></td><td>n protect, nprotect, n-protect urea, protected urea ravensdown, coated urea ravensdown</td></tr>
+      <tr><td><strong>Flexi-N</strong></td><td><span class="n-pct n-high">46.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-FLEXIN-46</code></td><td>flexi n, flexin, flexi-n, magnesium coated urea, flexin protect</td></tr>
+      <tr><td><strong>CAN</strong> (Calcium Ammonium Nitrate)</td><td><span class="n-pct n-mid">27.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-CAN-27</code></td><td>can, calcium ammonium nitrate, calcium nitrate, can27</td></tr>
+      <tr><td><strong>YaraBela CAN</strong></td><td><span class="n-pct n-mid">27.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-YARA-CAN-27</code></td><td>yarabela can, yara can, yara bela, yarabela calcium ammonium nitrate</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Ammonium sulphate blends (N + S)</h3>
+  <div style="overflow-x:auto">
+  <table class="fert-table">
+    <thead><tr><th>Canonical name</th><th>N%</th><th>Supplier</th><th>Supplier code</th><th>Common aliases</th></tr></thead>
+    <tbody>
+      <tr><td><strong>SOA</strong> (Sulphate of Ammonia)</td><td><span class="n-pct n-mid">21.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-SOA-21</code></td><td>soa, sulphate of ammonia, ammonium sulphate, sulphate ammonia</td></tr>
+      <tr><td><strong>Nrich SOA</strong></td><td><span class="n-pct n-mid">21.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-NRICH-SOA-21</code></td><td>nrich soa, ballance soa, nrich sulphate ammonia</td></tr>
+      <tr><td><strong>Ammo 36</strong></td><td><span class="n-pct n-high">36.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-AMMO36-36</code></td><td>ammo 36, ammo36, ammonium sulphate urea blend ravensdown</td></tr>
+      <tr><td><strong>Nrich Ammo 36N</strong></td><td><span class="n-pct n-high">36.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-NRICHAMMO36-36</code></td><td>nrich ammo 36, nrich ammo36n, ballance ammo 36</td></tr>
+      <tr><td><strong>Nrich Ammo 30N</strong></td><td><span class="n-pct n-mid">30.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-NRICHAMMO30-30</code></td><td>nrich ammo 30, nrich ammo30n, ammo 30</td></tr>
+      <tr><td><strong>SustaiN Ammo 36N</strong></td><td><span class="n-pct n-high">36.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-SUSTAINAMMO36-36</code></td><td>sustain ammo 36, sustain ammo36n, sustain ammonium</td></tr>
+      <tr><td><strong>SustaiN Ammo 30N</strong></td><td><span class="n-pct n-mid">30.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-SUSTAINAMMO30-30</code></td><td>sustain ammo 30, sustain ammo30n</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>DAP, MAP and phosphate blends (N + P)</h3>
+  <div style="overflow-x:auto">
+  <table class="fert-table">
+    <thead><tr><th>Canonical name</th><th>N%</th><th>Supplier</th><th>Supplier code</th><th>Common aliases</th></tr></thead>
+    <tbody>
+      <tr><td><strong>DAP</strong> (Di-Ammonium Phosphate)</td><td><span class="n-pct n-mid">18.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-DAP-18</code></td><td>dap, cropmaster dap, di-ammonium phosphate, diammonium phosphate</td></tr>
+      <tr><td><strong>DAP</strong></td><td><span class="n-pct n-mid">18.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-DAP-18</code></td><td>ballance dap, nrich dap</td></tr>
+      <tr><td><strong>MAP</strong> (Mono-Ammonium Phosphate)</td><td><span class="n-pct n-low">11.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-MAP-11</code></td><td>map, mono ammonium phosphate, ammo-phos map</td></tr>
+      <tr><td><strong>SuperN 6</strong></td><td><span class="n-pct n-low">6.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-SUPERN6-6</code></td><td>supern6, super n 6, supern 6, ballance supern</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Nitrogen + Sulphur single products</h3>
+  <div style="overflow-x:auto">
+  <table class="fert-table">
+    <thead><tr><th>Canonical name</th><th>N%</th><th>Supplier</th><th>Supplier code</th><th>Common aliases</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Nrich Liquid Urea 19N</strong></td><td><span class="n-pct n-mid">19.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-NRICH-LIQ-19</code></td><td>liquid urea, nrich liquid, liquid n 19, nrich liquid urea</td></tr>
+      <tr><td><strong>Nitrogen Super</strong></td><td><span class="n-pct n-low">8.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-NSUPER-8</code></td><td>nitrogen super, n super, nitro super</td></tr>
+      <tr><td><strong>N-Protect Sulphur Blend</strong></td><td><span class="n-pct n-high">38.0%</span></td><td><span class="src-badge src-r">Ravensdown</span></td><td><code>RD-NPROTECTS-38</code></td><td>n protect sulphur, nprotect sulphur 90, n protect s</td></tr>
+      <tr><td><strong>SustaiN 20K</strong></td><td><span class="n-pct n-mid">37.0%</span></td><td><span class="src-badge src-b">Ballance</span></td><td><code>BA-SUSTAIN20K-37</code></td><td>sustain 20k, sustain potassium, sustain k</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Generic / multi-supplier common products</h3>
+  <div style="overflow-x:auto">
+  <table class="fert-table">
+    <thead><tr><th>Canonical name</th><th>N%</th><th>Supplier</th><th>Supplier code</th><th>Common aliases</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Ammonium Nitrate</strong></td><td><span class="n-pct n-high">34.5%</span></td><td><span class="src-badge" style="color:var(--mist);border-color:var(--border)">Generic</span></td><td><code>GN-AN-34</code></td><td>ammonium nitrate, AN, an34, nitram</td></tr>
+      <tr><td><strong>Potassium Nitrate</strong></td><td><span class="n-pct n-mid">13.0%</span></td><td><span class="src-badge" style="color:var(--mist);border-color:var(--border)">Generic</span></td><td><code>GN-KNO3-13</code></td><td>potassium nitrate, nitrate of potash, kno3</td></tr>
+      <tr><td><strong>Calcium Nitrate</strong></td><td><span class="n-pct n-mid">15.5%</span></td><td><span class="src-badge" style="color:var(--mist);border-color:var(--border)">Generic</span></td><td><code>GN-CANO3-15</code></td><td>calcium nitrate, ca nitrate, nitrate of lime</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note note-gold">
+    <span class="note-label nl-gold">// your task</span>
+    Use this table to build <code>products.json</code>. You have ~23 products here — you need to reach 40. Add more from the Ravensdown fertiliser page (<a href="https://www.ravensdown.co.nz/products/fertiliser/" target="_blank">ravensdown.co.nz/products/fertiliser</a>) and Ballance (<a href="https://ballance.co.nz/Fertiliser-Products" target="_blank">ballance.co.nz/Fertiliser-Products</a>). Focus on products used on dairy farms. For each new product, record the source URL in the JSON <code>notes</code> field.
+  </div>
+</div>
+
+<!-- ── BUILD GUIDE ── -->
+<div class="tab-panel" id="panel-build">
+
+  <div class="eyebrow" style="margin-top:.5rem">Step-by-step implementation</div>
+  <h2 style="margin-top:.25rem">Building n_converter.py</h2>
+  <p>Follow these steps in order. Build one piece at a time. Test each piece works before moving to the next.</p>
+
+  <h2>Step 1 — load the database at import time</h2>
+  <p>The first thing your module does when it's imported is load <code>products.json</code> into memory. We do this once at the top, not inside every function — loading a file is slow and you don't want to do it 1000 times.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span>n_converter.py</span><span>start here</span></div>
+    <div class="code-body"><pre>
+<cs>"""
+Paddock N% Conversion Library
+Converts NZ fertiliser product names to elemental nitrogen kg.
+CA-003 | Sprint 1 | Junior Dev
+"""</cs>
+<ck>import</ck> <cf>json</cf>
+<ck>import</ck> <cf>os</cf>
+<ck>from</ck> <cf>rapidfuzz</cf> <ck>import</ck> <cf>fuzz</cf>, <cf>process</cf>
+
+<cc># ── Load product database at import time ──────────────────────────</cc>
+
+<cc># __file__ is the path to THIS file (n_converter.py)</cc>
+<cc># os.path.dirname gets the folder it's in</cc>
+<cc># os.path.join builds the path to products.json in the same folder</cc>
+_DB_PATH = <cf>os</cf>.<cm>path</cm>.<cm>join</cm>(<cf>os</cf>.<cm>path</cm>.<cm>dirname</cm>(<cm>__file__</cm>), <cs>"products.json"</cs>)
+
+<ck>with</ck> <cf>open</cf>(_DB_PATH, <cs>"r"</cs>, encoding=<cs>"utf-8"</cs>) <ck>as</ck> _f:
+    _DB = <cf>json</cf>.<cm>load</cm>(_f)[<cs>"products"</cs>]
+
+<cc># Pre-build a flat list of all searchable names:</cc>
+<cc># canonical names + all aliases, mapped back to the product</cc>
+_SEARCH_TERMS: <cf>list</cf>[<cf>tuple</cf>[<cf>str</cf>, <cf>dict</cf>]] = []
+<ck>for</ck> product <ck>in</ck> _DB:
+    <cc># Add the canonical name</cc>
+    _SEARCH_TERMS.append((product[<cs>"canonical_name"</cs>].lower(), product))
+    <cc># Add all aliases</cc>
+    <ck>for</ck> alias <ck>in</ck> product.get(<cs>"aliases"</cs>, []):
+        _SEARCH_TERMS.append((alias.lower(), product))
+</pre></div>
+  </div>
+
+  <div class="note note-blue">
+    <span class="note-label nl-blue">// new concept: module-level code</span>
+    Code that is outside any function runs exactly once when Python imports the module. By loading the JSON here (not inside a function), we load it once when the program starts and reuse it for every function call. This is a common performance pattern in Python.
+  </div>
+
+  <h2>Step 2 — the custom exception</h2>
+  <p>Add this right after the database loading code. Custom exceptions let the caller handle errors specifically — the rule engine can catch <code>ProductNotFoundError</code> and log it differently from a generic error.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span>n_converter.py</span><span>add after DB loading</span></div>
+    <div class="code-body"><pre>
+<ck>class</ck> <cf>ProductNotFoundError</cf>(<cf>Exception</cf>):
+    <cs>"""Raised when no fertiliser product matches the query above threshold."""</cs>
+    <ck>def</ck> <cf>__init__</cf>(<ck>self</ck>, query: <cf>str</cf>, best_match: <cf>str</cf> = <ck>None</ck>, best_score: <cf>int</cf> = <cn>0</cn>):
+        <ck>self</ck>.<cm>query</cm> = query
+        <ck>self</ck>.<cm>best_match</cm> = best_match
+        <ck>self</ck>.<cm>best_score</cm> = best_score
+        msg = <cs>f"No product found for '</cs>{query}<cs>'"</cs>
+        <ck>if</ck> best_match:
+            msg += <cs>f". Closest match: '</cs>{best_match}<cs>' (score: </cs>{best_score}<cs>)"</cs>
+        <cf>super</cf>().<cm>__init__</cm>(msg)
+</pre></div>
+  </div>
+
+  <h2>Step 3 — the fuzzy match helper</h2>
+  <p>This is the core of the library. <code>rapidfuzz</code> compares your query against every name in the database and returns a similarity score from 0 to 100. We use <code>WRatio</code> which handles different word orders and partial matches — ideal for product names.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span>n_converter.py</span><span>internal helper — note the leading underscore</span></div>
+    <div class="code-body"><pre>
+<ck>def</ck> <cf>_find_best_match</cf>(
+    query: <cf>str</cf>,
+    threshold: <cf>int</cf> = <cn>75</cn>
+) -> <cf>tuple</cf>[<cf>dict</cf> | <ck>None</ck>, <cf>int</cf>]:
+    <cs>"""
+    Internal function. Find the best matching product for a query string.
+
+    Returns a tuple: (product_dict or None, score)
+    The leading underscore signals to other developers: don't call this
+    from outside the module. Use calculate_nitrogen_kg() instead.
+    """</cs>
+    <cc># Normalise the query: lowercase, strip whitespace</cc>
+    query_clean = query.<cm>lower</cm>().<cm>strip</cm>()
+
+    <cc># Get all the searchable terms (just the strings, not the product dicts)</cc>
+    terms = [term <ck>for</ck> term, _ <ck>in</ck> _SEARCH_TERMS]
+
+    <cc># Ask rapidfuzz for the best match</cc>
+    <cc># process.extractOne returns: (matched_string, score, index)</cc>
+    result = <cf>process</cf>.<cm>extractOne</cm>(
+        query_clean,
+        terms,
+        scorer=<cf>fuzz</cf>.<cm>WRatio</cm>,   <cc># WRatio handles word order variations</cc>
+        score_cutoff=<cn>0</cn>,          <cc># don't cut off — we want to see the best even if low</cc>
+    )
+
+    <ck>if</ck> result <ck>is</ck> <ck>None</ck>:
+        <ck>return</ck> <ck>None</ck>, <cn>0</cn>
+
+    matched_term, score, index = result
+
+    <cc># Get the product dict that corresponds to the matched term</cc>
+    product = _SEARCH_TERMS[index][<cn>1</cn>]
+
+    <ck>if</ck> score >= threshold:
+        <ck>return</ck> product, <cf>int</cf>(score)
+    <ck>else</ck>:
+        <cc># Return the product for error reporting, but flag as below threshold</cc>
+        <ck>return</ck> <ck>None</ck>, <cf>int</cf>(score)
+</pre></div>
+  </div>
+
+  <h2>Step 4 — calculate_nitrogen_kg (the main function)</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>n_converter.py</span><span>main public function</span></div>
+    <div class="code-body"><pre>
+<ck>def</ck> <cf>calculate_nitrogen_kg</cf>(
+    product_name: <cf>str</cf>,
+    weight_kg: <cf>float</cf>,
+    match_threshold: <cf>int</cf> = <cn>75</cn>
+) -> <cf>dict</cf>:
+    <cs>"""
+    Calculate elemental nitrogen from fertiliser product name and weight.
+    See Architect Input tab for full docstring.
+    """</cs>
+    <cc># Validate inputs first — fail fast with clear errors</cc>
+    <ck>if</ck> <ck>not</ck> <cf>isinstance</cf>(product_name, <cf>str</cf>) <ck>or not</ck> product_name.<cm>strip</cm>():
+        <ck>raise</ck> <cf>ValueError</cf>(<cs>"product_name must be a non-empty string"</cs>)
+
+    <ck>if</ck> weight_kg <= <cn>0</cn>:
+        <ck>raise</ck> <cf>ValueError</cf>(<cs>f"weight_kg must be positive, got: </cs>{weight_kg}<cs>"</cs>)
+
+    <cc># Find the best match</cc>
+    <cc># _find_best_match returns (product_or_None, score)</cc>
+    product, score = <cf>_find_best_match</cf>(product_name, threshold=match_threshold)
+
+    <ck>if</ck> product <ck>is</ck> <ck>None</ck>:
+        <cc># Get the score of what was closest, even if below threshold</cc>
+        _, best_score_anyway = <cf>_find_best_match</cf>(product_name, threshold=<cn>0</cn>)
+        <ck>raise</ck> <cf>ProductNotFoundError</cf>(
+            query=product_name,
+            best_match=<cs>"unknown"</cs>,
+            best_score=best_score_anyway
+        )
+
+    <cc># Calculate elemental nitrogen</cc>
+    <cc># n_pct is stored as e.g. 46.0, meaning 46%</cc>
+    <cc># so we divide by 100 to get the fraction</cc>
+    n_kg = <cf>round</cf>(weight_kg * (product[<cs>"n_pct"</cs>] / <cn>100</cn>), <cn>4</cn>)
+
+    <ck>return</ck> {
+        <cs>"product_matched"</cs>: product[<cs>"canonical_name"</cs>],
+        <cs>"n_pct"</cs>:          product[<cs>"n_pct"</cs>],
+        <cs>"weight_kg"</cs>:       <cf>round</cf>(weight_kg, <cn>4</cn>),
+        <cs>"n_kg"</cs>:            n_kg,
+        <cs>"match_score"</cs>:     score,
+        <cs>"source"</cs>:          product[<cs>"source"</cs>],
+        <cs>"supplier_code"</cs>:   product[<cs>"supplier_code"</cs>],
+    }
+</pre></div>
+  </div>
+
+  <h2>Step 5 — search_products and get_product_by_code</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>n_converter.py</span><span>remaining public functions</span></div>
+    <div class="code-body"><pre>
+<ck>def</ck> <cf>search_products</cf>(
+    query: <cf>str</cf>,
+    limit: <cf>int</cf> = <cn>5</cn>,
+    threshold: <cf>int</cf> = <cn>60</cn>
+) -> <cf>list</cf>[<cf>dict</cf>]:
+    <cs>"""Return ranked list of matching products for UI autocomplete."""</cs>
+    <ck>if</ck> <ck>not</ck> query <ck>or not</ck> query.<cm>strip</cm>():
+        <ck>return</ck> []
+
+    query_clean = query.<cm>lower</cm>().<cm>strip</cm>()
+    terms = [term <ck>for</ck> term, _ <ck>in</ck> _SEARCH_TERMS]
+
+    <cc># extractMany returns up to `limit` matches</cc>
+    results = <cf>process</cf>.<cm>extract</cm>(
+        query_clean,
+        terms,
+        scorer=<cf>fuzz</cf>.<cm>WRatio</cm>,
+        limit=limit * <cn>3</cn>,   <cc># get more then deduplicate</cc>
+        score_cutoff=threshold
+    )
+
+    <cc># Deduplicate by supplier_code (same product may match via name AND alias)</cc>
+    seen_codes = <cf>set</cf>()
+    output = []
+    <ck>for</ck> matched_term, score, index <ck>in</ck> results:
+        product = _SEARCH_TERMS[index][<cn>1</cn>]
+        code = product[<cs>"supplier_code"</cs>]
+        <ck>if</ck> code <ck>not</ck> <ck>in</ck> seen_codes:
+            seen_codes.<cm>add</cm>(code)
+            output.<cm>append</cm>({
+                <cs>"product_name"</cs>:  product[<cs>"canonical_name"</cs>],
+                <cs>"n_pct"</cs>:         product[<cs>"n_pct"</cs>],
+                <cs>"source"</cs>:        product[<cs>"source"</cs>],
+                <cs>"supplier_code"</cs>: code,
+                <cs>"match_score"</cs>:   <cf>int</cf>(score),
+            })
+        <ck>if</ck> <cf>len</cf>(output) >= limit:
+            <ck>break</ck>
+
+    <ck>return</ck> output
+
+
+<ck>def</ck> <cf>get_product_by_code</cf>(supplier_code: <cf>str</cf>) -> <cf>dict</cf> | <ck>None</ck>:
+    <cs>"""Look up a product by its exact supplier code."""</cs>
+    <ck>for</ck> product <ck>in</ck> _DB:
+        <ck>if</ck> product[<cs>"supplier_code"</cs>] == supplier_code:
+            <ck>return</ck> product
+    <ck>return</ck> <ck>None</ck>
+</pre></div>
+  </div>
+
+  <h2>Try it in the terminal before writing tests</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>terminal</span><span>quick manual test</span></div>
+    <div class="code-body"><pre>
+<cc># From the project root</cc>
+python3 -c "
+from libs.n_converter import calculate_nitrogen_kg
+
+<cc># Test 1: exact match</cc>
+result = calculate_nitrogen_kg('Urea', 1000)
+print(result)
+<cc># Should print: {'product_matched': 'Urea', 'n_pct': 46.0, 'n_kg': 460.0, ...}</cc>
+
+<cc># Test 2: fuzzy match</cc>
+result = calculate_nitrogen_kg('sustain', 500)
+print(result['product_matched'])  <cc># Should print: SustaiN</cc>
+
+<cc># Test 3: error case</cc>
+try:
+    calculate_nitrogen_kg('xyzzy', 100)
+except Exception as e:
+    print(type(e).__name__, e)  <cc># Should print: ProductNotFoundError ...</cc>
+"
+</pre></div>
+  </div>
+</div>
+
+<!-- ── TESTS ── -->
+<div class="tab-panel" id="panel-tests">
+
+  <div class="eyebrow" style="margin-top:.5rem">Professional habit — write tests for everything</div>
+  <h2 style="margin-top:.25rem">Your test suite</h2>
+  <p>Writing tests is one of the most important habits you will build as a professional developer. Tests prove your code works, catch bugs when you change something, and give the Architect confidence that your library is reliable enough to build on. In production code, untested code is assumed broken.</p>
+
+  <div class="note note-gold">
+    <span class="note-label nl-gold">// from 100 days of code to professional testing</span>
+    The Udemy course likely didn't cover pytest in depth. This is your first proper test suite. Read the pattern once, then copy it — you'll pick it up fast. The key insight: a test is just a function that calls your code and checks the result with <code>assert</code>.
+  </div>
+
+  <h2>The complete test file</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>test_n_converter.py</span><span>copy this, then extend it</span></div>
+    <div class="code-body"><pre>
+<cs>"""
+Tests for CA-003 — N% Conversion Library
+Run with: pytest libs/n_converter/test_n_converter.py -v
+"""</cs>
+<ck>import</ck> <cf>pytest</cf>
+<ck>from</ck> <cf>libs.n_converter</cf> <ck>import</ck> (
+    <cf>calculate_nitrogen_kg</cf>,
+    <cf>search_products</cf>,
+    <cf>get_product_by_code</cf>,
+    <cf>ProductNotFoundError</cf>,
+)
+
+
+<cc># ── SECTION 1: Exact and canonical name matches ───────────────────</cc>
+
+<ck>class</ck> <cf>TestExactMatches</cf>:
+    <ck>def</ck> <cf>test_urea_exact_name</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"Urea"</cs>, <cn>1000</cn>)
+        <ck>assert</ck> result[<cs>"product_matched"</cs>] == <cs>"Urea"</cs>
+        <ck>assert</ck> result[<cs>"n_pct"</cs>] == <cn>46.0</cn>
+        <ck>assert</ck> result[<cs>"n_kg"</cs>] == <cn>460.0</cn>
+
+    <ck>def</ck> <cf>test_can_exact_name</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"CAN"</cs>, <cn>1000</cn>)
+        <ck>assert</ck> result[<cs>"n_pct"</cs>] == <cn>27.0</cn>
+        <ck>assert</ck> result[<cs>"n_kg"</cs>] == <cn>270.0</cn>
+
+    <ck>def</ck> <cf>test_dap_exact_name</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"DAP"</cs>, <cn>1000</cn>)
+        <ck>assert</ck> result[<cs>"n_pct"</cs>] == <cn>18.0</cn>
+        <ck>assert</ck> result[<cs>"n_kg"</cs>] == <cn>180.0</cn>
+
+    <ck>def</ck> <cf>test_sustain_exact_name</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"SustaiN"</cs>, <cn>1000</cn>)
+        <ck>assert</ck> result[<cs>"n_pct"</cs>] == <cn>46.0</cn>
+        <ck>assert</ck> result[<cs>"source"</cs>] == <cs>"Ballance"</cs>
+
+
+<cc># ── SECTION 2: Case-insensitive matches ──────────────────────────</cc>
+
+<ck>class</ck> <cf>TestCaseInsensitive</cf>:
+    <ck>def</ck> <cf>test_urea_lowercase</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"urea"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"product_matched"</cs>] == <cs>"Urea"</cs>
+
+    <ck>def</ck> <cf>test_urea_uppercase</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"UREA"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"product_matched"</cs>] == <cs>"Urea"</cs>
+
+    <ck>def</ck> <cf>test_can_lowercase</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"can"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"n_pct"</cs>] == <cn>27.0</cn>
+
+    <ck>def</ck> <cf>test_sustain_lowercase</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"sustain"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"product_matched"</cs>] == <cs>"SustaiN"</cs>
+
+
+<cc># ── SECTION 3: Fuzzy / alias matches ─────────────────────────────</cc>
+
+<ck>class</ck> <cf>TestFuzzyMatches</cf>:
+    <ck>def</ck> <cf>test_urea_with_percentage</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"urea 46"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"n_pct"</cs>] == <cn>46.0</cn>
+
+    <ck>def</ck> <cf>test_urea_misspelled</cf>(<ck>self</ck>):
+        <cc># Common farmer misspelling</cc>
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"urea fert"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"product_matched"</cs>] == <cs>"Urea"</cs>
+
+    <ck>def</ck> <cf>test_calcium_ammonium_nitrate_longform</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"calcium ammonium nitrate"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"n_pct"</cs>] == <cn>27.0</cn>
+
+    <ck>def</ck> <cf>test_dap_longform</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"diammonium phosphate"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"n_pct"</cs>] == <cn>18.0</cn>
+
+    <ck>def</ck> <cf>test_soa_alias</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"sulphate of ammonia"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"n_pct"</cs>] == <cn>21.0</cn>
+
+    <ck>def</ck> <cf>test_nrich_urea</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"nrich"</cs>, <cn>100</cn>)
+        <ck>assert</ck> result[<cs>"product_matched"</cs>] == <cs>"Nrich Urea"</cs>
+
+
+<cc># ── SECTION 4: N kg calculation accuracy ─────────────────────────</cc>
+
+<ck>class</ck> <cf>TestNitrogenCalculation</cf>:
+    <ck>def</ck> <cf>test_urea_1000kg</cf>(<ck>self</ck>):
+        <cc># 1000 kg × 46% = 460 kg N</cc>
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"urea"</cs>, <cn>1000</cn>)
+        <ck>assert</ck> result[<cs>"n_kg"</cs>] == <cn>460.0</cn>
+
+    <ck>def</ck> <cf>test_urea_paddock_scenario</cf>(<ck>self</ck>):
+        <cc># 150 kg/ha × 14.2 ha = 2130 kg product → 979.8 kg N</cc>
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"urea"</cs>, <cn>150</cn> * <cn>14.2</cn>)
+        <ck>assert</ck> result[<cs>"n_kg"</cs>] == <cf>pytest.approx</cf>(<cn>979.8</cn>, rel=<cn>1e-3</cn>)
+
+    <ck>def</ck> <cf>test_can_500kg</cf>(<ck>self</ck>):
+        <cc># 500 kg × 27% = 135 kg N</cc>
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"CAN"</cs>, <cn>500</cn>)
+        <ck>assert</ck> result[<cs>"n_kg"</cs>] == <cn>135.0</cn>
+
+    <ck>def</ck> <cf>test_result_contains_all_required_keys</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"urea"</cs>, <cn>100</cn>)
+        required_keys = [
+            <cs>"product_matched"</cs>, <cs>"n_pct"</cs>, <cs>"weight_kg"</cs>,
+            <cs>"n_kg"</cs>, <cs>"match_score"</cs>, <cs>"source"</cs>, <cs>"supplier_code"</cs>
+        ]
+        <ck>for</ck> key <ck>in</ck> required_keys:
+            <ck>assert</ck> key <ck>in</ck> result, <cs>f"Missing key: </cs>{key}<cs>"</cs>
+
+    <ck>def</ck> <cf>test_n_pct_is_float_not_int</cf>(<ck>self</ck>):
+        result = <cf>calculate_nitrogen_kg</cf>(<cs>"urea"</cs>, <cn>100</cn>)
+        <ck>assert</ck> <cf>isinstance</cf>(result[<cs>"n_pct"</cs>], <cf>float</cf>)
+
+
+<cc># ── SECTION 5: Error cases ────────────────────────────────────────</cc>
+
+<ck>class</ck> <cf>TestErrorCases</cf>:
+    <ck>def</ck> <cf>test_unknown_product_raises_error</cf>(<ck>self</ck>):
+        <ck>with</ck> <cf>pytest.raises</cf>(<cf>ProductNotFoundError</cf>):
+            <cf>calculate_nitrogen_kg</cf>(<cs>"xyzzy_not_a_fertiliser_123"</cs>, <cn>100</cn>)
+
+    <ck>def</ck> <cf>test_zero_weight_raises_error</cf>(<ck>self</ck>):
+        <ck>with</ck> <cf>pytest.raises</cf>(<cf>ValueError</cf>):
+            <cf>calculate_nitrogen_kg</cf>(<cs>"urea"</cs>, <cn>0</cn>)
+
+    <ck>def</ck> <cf>test_negative_weight_raises_error</cf>(<ck>self</ck>):
+        <ck>with</ck> <cf>pytest.raises</cf>(<cf>ValueError</cf>):
+            <cf>calculate_nitrogen_kg</cf>(<cs>"urea"</cs>, -<cn>100</cn>)
+
+    <ck>def</ck> <cf>test_empty_string_raises_error</cf>(<ck>self</ck>):
+        <ck>with</ck> <cf>pytest.raises</cf>(<cf>ValueError</cf>):
+            <cf>calculate_nitrogen_kg</cf>(<cs>""</cs>, <cn>100</cn>)
+
+    <ck>def</ck> <cf>test_error_has_query_attribute</cf>(<ck>self</ck>):
+        <ck>with</ck> <cf>pytest.raises</cf>(<cf>ProductNotFoundError</cf>) <ck>as</ck> exc_info:
+            <cf>calculate_nitrogen_kg</cf>(<cs>"not_a_product"</cs>, <cn>100</cn>)
+        <ck>assert</ck> exc_info.<cm>value</cm>.<cm>query</cm> == <cs>"not_a_product"</cs>
+
+
+<cc># ── SECTION 6: search_products ───────────────────────────────────</cc>
+
+<ck>class</ck> <cf>TestSearchProducts</cf>:
+    <ck>def</ck> <cf>test_search_returns_list</cf>(<ck>self</ck>):
+        results = <cf>search_products</cf>(<cs>"urea"</cs>)
+        <ck>assert</ck> <cf>isinstance</cf>(results, <cf>list</cf>)
+
+    <ck>def</ck> <cf>test_search_respects_limit</cf>(<ck>self</ck>):
+        results = <cf>search_products</cf>(<cs>"urea"</cs>, limit=<cn>3</cn>)
+        <ck>assert</ck> <cf>len</cf>(results) <= <cn>3</cn>
+
+    <ck>def</ck> <cf>test_search_empty_query_returns_empty_list</cf>(<ck>self</ck>):
+        results = <cf>search_products</cf>(<cs>""</cs>)
+        <ck>assert</ck> results == []
+
+    <ck>def</ck> <cf>test_search_unknown_returns_empty_list</cf>(<ck>self</ck>):
+        results = <cf>search_products</cf>(<cs>"zzzunknownzzz"</cs>)
+        <ck>assert</ck> results == []
+
+
+<cc># ── SECTION 7: get_product_by_code ───────────────────────────────</cc>
+
+<ck>class</ck> <cf>TestGetByCode</cf>:
+    <ck>def</ck> <cf>test_get_urea_by_code</cf>(<ck>self</ck>):
+        product = <cf>get_product_by_code</cf>(<cs>"RD-UREA-46"</cs>)
+        <ck>assert</ck> product <ck>is not</ck> <ck>None</ck>
+        <ck>assert</ck> product[<cs>"canonical_name"</cs>] == <cs>"Urea"</cs>
+
+    <ck>def</ck> <cf>test_get_unknown_code_returns_none</cf>(<ck>self</ck>):
+        result = <cf>get_product_by_code</cf>(<cs>"XX-NOTREAL-99"</cs>)
+        <ck>assert</ck> result <ck>is</ck> <ck>None</ck>
+</pre></div>
+  </div>
+
+  <h2>Run the tests</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span>terminal</span><span>run and read the output</span></div>
+    <div class="code-body"><pre>
+<cc># From the project root</cc>
+pytest libs/n_converter/test_n_converter.py -v
+
+<cc># -v means "verbose" — shows each test name and pass/fail</cc>
+<cc># Good output looks like:</cc>
+<cc>#   test_urea_exact_name PASSED</cc>
+<cc>#   test_can_exact_name PASSED</cc>
+<cc>#   ...27 passed in 0.24s</cc>
+
+<cc># If a test fails, pytest shows you exactly what was expected vs what you got</cc>
+<cc># Read the failure message carefully — it tells you exactly what to fix</cc>
+</pre></div>
+  </div>
+
+  <div class="note note-green">
+    <span class="note-label nl-green">// your target</span>
+    All tests must pass before you open your PR. If any test fails, fix your code (not the test). The only time you change a test is if you discover the test itself has a bug — and you must tell the Architect if that happens.
+  </div>
+</div>
+
+<!-- ── LEARNING ── -->
+<div class="tab-panel" id="panel-learning">
+
+  <div class="eyebrow" style="margin-top:.5rem">From Udemy graduate to professional Python developer</div>
+  <h2 style="margin-top:.25rem">Learning guide for CA-003 and beyond</h2>
+  <p>You've completed <strong>100 Days of Code</strong> — that's a strong foundation. This story introduces several professional-grade concepts you may not have encountered yet. Here's exactly what to study, in priority order, before and during this sprint.</p>
+
+  <div class="note note-gold">
+    <span class="note-label nl-gold">// 100 days sections worth revisiting</span>
+    Before the new material below: quickly re-read your Day 46–48 notes on functions and modules (if you covered them), and Day 56–58 on working with files and JSON. These are directly relevant to CA-003. If you don't have notes, skim the Udemy course sections on "Python Modules" and "File I/O with JSON".
+  </div>
+
+  <h2>Must-know for this story</h2>
+  <div class="res-grid">
+    <div class="res-card">
+      <span class="res-priority pri-must">MUST — this week</span>
+      <h4>Virtual environments &amp; pip</h4>
+      <p>You'll use this every day for the rest of your career. Understand why we use <code>venv</code>, what <code>requirements.txt</code> is for, and how <code>pip install</code> works inside a venv.</p>
+      <a href="https://docs.python.org/3/library/venv.html" target="_blank">docs.python.org/3/library/venv →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-must">MUST — this week</span>
+      <h4>Python packages &amp; __init__.py</h4>
+      <p>Understand what makes a folder a Python package, what <code>__init__.py</code> does, and how imports work between files in a project. This is how your library connects to the rest of Paddock.</p>
+      <a href="https://realpython.com/python-import/" target="_blank">realpython.com/python-import →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-must">MUST — this week</span>
+      <h4>Type hints in Python</h4>
+      <p>The function signatures in the Architect Input use <code>str</code>, <code>float</code>, <code>dict</code>, <code>list[dict]</code>, etc. These are type hints. They don't change how the code runs but are essential for professional Python. Read the basics.</p>
+      <a href="https://realpython.com/python-type-checking/" target="_blank">realpython.com/python-type-checking →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-must">MUST — this week</span>
+      <h4>Custom exceptions in Python</h4>
+      <p>You need to create <code>ProductNotFoundError</code>. Understand how to subclass <code>Exception</code>, add custom attributes, and why custom exceptions are better than generic ones.</p>
+      <a href="https://realpython.com/python-exceptions/" target="_blank">realpython.com/python-exceptions →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-must">MUST — this week</span>
+      <h4>pytest basics</h4>
+      <p>Your first professional test suite. Read the quickstart guide. Understand: test functions, <code>assert</code>, <code>pytest.raises</code>, and how to run tests from the terminal. The build guide shows you the patterns — this explains why they work.</p>
+      <a href="https://docs.pytest.org/en/stable/getting-started.html" target="_blank">docs.pytest.org/getting-started →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-must">MUST — this week</span>
+      <h4>RapidFuzz documentation</h4>
+      <p>Read the README and the <code>process.extractOne</code> and <code>process.extract</code> docs. Understand what <code>WRatio</code> does vs <code>ratio</code>. Run the examples from their README to see fuzzy matching in action before building.</p>
+      <a href="https://github.com/rapidfuzz/RapidFuzz" target="_blank">github.com/rapidfuzz/RapidFuzz →</a>
+    </div>
+  </div>
+
+  <h2>Should know — this sprint</h2>
+  <div class="res-grid">
+    <div class="res-card">
+      <span class="res-priority pri-should">SHOULD — Week 1–2</span>
+      <h4>Docstrings and code documentation</h4>
+      <p>The Architect's interface spec uses Google-style docstrings. Learn the format: what goes in Args, Returns, Raises. Professional code is self-documenting. Every public function you write should have a docstring.</p>
+      <a href="https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings" target="_blank">Google Python Style Guide →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-should">SHOULD — Week 1–2</span>
+      <h4>Git branching and pull requests</h4>
+      <p>You'll create a feature branch for CA-003 and open a PR for review. Understand: branch vs main, commit messages, what a PR is, and how to respond to code review comments.</p>
+      <a href="https://learngitbranching.js.org/" target="_blank">learngitbranching.js.org (interactive) →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-should">SHOULD — Week 2</span>
+      <h4>Working with JSON in Python</h4>
+      <p>You're building a JSON database and loading it in Python. Review <code>json.load()</code>, <code>json.dump()</code>, and how to navigate nested JSON structures. Also understand JSON schema validation if you have time.</p>
+      <a href="https://realpython.com/python-json/" target="_blank">realpython.com/python-json →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-should">SHOULD — Week 2</span>
+      <h4>Python f-strings and string formatting</h4>
+      <p>The build guide uses f-strings throughout. If you're not completely comfortable with them (including expressions inside braces, formatting floats to decimal places), revisit. You used these in the Udemy course — this is a refresher.</p>
+      <a href="https://realpython.com/python-f-strings/" target="_blank">realpython.com/python-f-strings →</a>
+    </div>
+  </div>
+
+  <h2>Good to know — Sprint 2 onwards</h2>
+  <div class="res-grid">
+    <div class="res-card">
+      <span class="res-priority pri-nice">NICE — Sprint 2</span>
+      <h4>FastAPI basics</h4>
+      <p>In Sprint 2, you'll build the farmer input form. The backend is FastAPI (Python). This is the most important web framework to learn for your role. Start with the official tutorial.</p>
+      <a href="https://fastapi.tiangolo.com/tutorial/" target="_blank">fastapi.tiangolo.com/tutorial →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-nice">NICE — Sprint 2</span>
+      <h4>The Anthropic Python SDK</h4>
+      <p>In Sprint 3 you'll build the LLM report generator using the Anthropic API. Start reading the Python SDK docs now so it's not new when you get there.</p>
+      <a href="https://docs.anthropic.com/en/api/getting-started" target="_blank">docs.anthropic.com →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-nice">NICE — anytime</span>
+      <h4>Real Python — general</h4>
+      <p>The highest-quality Python tutorials on the internet. Bookmark it. Any time you encounter a Python concept you don't fully understand, search Real Python first.</p>
+      <a href="https://realpython.com" target="_blank">realpython.com →</a>
+    </div>
+    <div class="res-card">
+      <span class="res-priority pri-nice">NICE — anytime</span>
+      <h4>Python Tricks (book)</h4>
+      <p>A short, practical book covering Python patterns used in professional codebases that beginner courses skip. Covers decorators, context managers, list comprehensions, and more. Ebook ~$25.</p>
+      <a href="https://realpython.com/products/python-tricks-book/" target="_blank">realpython.com/products/python-tricks-book →</a>
+    </div>
+  </div>
+
+  <h2>100 Days of Code — sections to revisit</h2>
+  <div class="card card-gold">
+    <h4>Before starting CA-003, spend 30 minutes re-reading these</h4>
+    <ul style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
+      <li style="font-size:.85rem;color:var(--mist);display:flex;gap:.75rem"><span style="color:var(--gold);flex-shrink:0">→</span><span><strong style="color:var(--white)">Day 25–30 (Working with CSVs and JSON)</strong> — you'll be loading JSON files and understanding data formats. The course covers this; the concepts directly apply to <code>products.json</code>.</span></li>
+      <li style="font-size:.85rem;color:var(--mist);display:flex;gap:.75rem"><span style="color:var(--gold);flex-shrink:0">→</span><span><strong style="color:var(--white)">Day 46–48 (Functions advanced)</strong> — default parameters, *args, **kwargs, return types. You'll use all of these in <code>n_converter.py</code>.</span></li>
+      <li style="font-size:.85rem;color:var(--mist);display:flex;gap:.75rem"><span style="color:var(--gold);flex-shrink:0">→</span><span><strong style="color:var(--white)">Day 53–55 (OOP)</strong> — your custom exception is a class. The course covers class basics; re-read the <code>__init__</code> and inheritance sections.</span></li>
+      <li style="font-size:.85rem;color:var(--mist);display:flex;gap:.75rem"><span style="color:var(--gold);flex-shrink:0">→</span><span><strong style="color:var(--white)">Day 8–10 (Errors and exceptions)</strong> — try/except, raising errors, handling specific exception types. This is directly relevant to <code>ProductNotFoundError</code>.</span></li>
+    </ul>
+  </div>
+
+  <h2>Daily learning routine suggestion</h2>
+  <div class="card card-green">
+    <h4>4 hours/day — suggested split</h4>
+    <p style="margin-bottom:.75rem">You have 4 focused hours. Don't split them into too many small pieces — depth matters more than breadth at this stage.</p>
+    <ul style="list-style:none;display:flex;flex-direction:column;gap:.5rem">
+      <li style="font-size:.85rem;color:var(--mist);display:flex;gap:.75rem"><span style="color:var(--green);flex-shrink:0">3.0 hrs</span><span>Building the actual story — writing code, running tests, fixing bugs</span></li>
+      <li style="font-size:.85rem;color:var(--mist);display:flex;gap:.75rem"><span style="color:var(--green);flex-shrink:0">0.5 hrs</span><span>Reading one resource from the MUST list above (one per day, not all at once)</span></li>
+      <li style="font-size:.85rem;color:var(--mist);display:flex;gap:.75rem"><span style="color:var(--green);flex-shrink:0">0.5 hrs</span><span>Writing your EOD standup (what you did, what's blocked, what's next) and any questions for the Architect</span></li>
+    </ul>
+  </div>
+
+  <div class="note note-green">
+    <span class="note-label nl-green">// the most important habit</span>
+    When something doesn't work and you don't know why — read the error message carefully first. Python error messages are very informative. Copy the last line into Google if needed. If you've spent 20 minutes stuck on the same error, post it in Slack with the full error message and what you've already tried. Never spend more than 30 minutes blocked without asking for help.
+  </div>
+
+  <h2>Completion checklist</h2>
+  <ul class="checklist">
+    <li><strong>products.json</strong> — 40 products, correct N% for each, all required JSON fields</li>
+    <li><strong>calculate_nitrogen_kg()</strong> — matches Architect's exact signature, returns correct dict</li>
+    <li><strong>search_products()</strong> — returns ranked list, respects limit, handles empty query</li>
+    <li><strong>get_product_by_code()</strong> — returns product dict or None</li>
+    <li><strong>ProductNotFoundError</strong> — custom exception with query, best_match, best_score attributes</li>
+    <li><strong>test_n_converter.py</strong> — all tests pass, minimum 20 test cases</li>
+    <li><strong>README.md</strong> — installation, usage examples, public API documented</li>
+    <li><strong>PR opened</strong> — on feature/CA-003-n-converter branch, Architect tagged for review</li>
+    <li><strong>Draft products.json shared</strong> with Architect on Day 2 before writing Python</li>
+    <li><strong>Function signatures confirmed</strong> with Architect on Day 3 before implementing</li>
+  </ul>
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({ top: 52, behavior: 'smooth' });
+}
+const rv = new IntersectionObserver(e => e.forEach(x => { if (x.isIntersecting) x.target.classList.add('in') }), { threshold: .08 });
+document.querySelectorAll('.rv').forEach(el => rv.observe(el));
+</script>
+</body>
+</html>
